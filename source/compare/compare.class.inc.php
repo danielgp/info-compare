@@ -36,7 +36,7 @@ namespace danielgp\info_compare;
 class Compare
 {
 
-    use CommonCode;
+    use \danielgp\common_lib\CommonCode;
 
     private $localConfiguration;
     private $serverConfiguration;

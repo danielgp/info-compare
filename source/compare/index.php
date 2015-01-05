@@ -26,7 +26,7 @@
  *
  */
 require_once '../config/deployed.info.config.inc.php';
-require_once '../common/common.inc.php';
+require_once '../../vendor/danielgp/common-lib/source/common.inc.php';
 require_once 'compare.class.inc.php';
 
 $app = new danielgp\info_compare\Compare();
