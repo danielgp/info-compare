@@ -44,8 +44,7 @@ class Compare
 
     public function __construct()
     {
-        global $cfg;
-        $this->config           = $cfg;
+        $this->getConfiguration();
         $this->applicationFlags = [
             'available_languages' => [
                 'en_US' => 'EN',
@@ -105,6 +104,22 @@ class Compare
         }
         $sString[] = '</tbody></table>';
         return implode('', $sString);
+    }
+
+    private function getConfiguration()
+    {
+        $servers = explode('|', IC_SERVERS);
+        foreach ($servers as $value) {
+            $pieces                    = explode('=', $value);
+            $this->config['Servers'][] = [
+                'name' => $pieces[0],
+                'url'  => $pieces[1],
+            ];
+        }
+        $serverNames                        = array_column($this->config['Servers'], 'name');
+        $this->config['Defaults']['Source'] = array_search(IC_SOURCE, $serverNames);
+        $this->config['Defaults']['Target'] = array_search(IC_TARGET, $serverNames);
+        $this->config['Defaults']['Label']  = IC_LABEL;
     }
 
     private function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pSequence = ['first', 'second'])

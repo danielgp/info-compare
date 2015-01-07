@@ -25,21 +25,20 @@
  * SOFTWARE.
  *
  */
-$i = 0;
-
-$i++;
-$cfg['Servers'][$i]['name'] = 'Transformer';
-$cfg['Servers'][$i]['url']  = 'http://127.0.0.1/informator/source/info/';
-
-$i++;
-$cfg['Servers'][$i]['name'] = 'www.pgd.ro';
-$cfg['Servers'][$i]['url']  = 'http://www.pgd.ro/info-compare/info/';
-
-$i++;
-$cfg['Servers'][$i]['name'] = 'lugoj2';
-$cfg['Servers'][$i]['url']  = 'http://160.221.78.69/3rdparty/danielgp/informator/source/info/';
-
-
-$cfg['Defaults']['Source'] = 1;
-$cfg['Defaults']['Target'] = 1;
-$cfg['Defaults']['Label']  = 'SysInfo';
+define('IC_SERVERS', implode('|', [
+    implode('=', [
+        'Transformer',
+        'http://127.0.0.1/informator/source/info/'
+    ]),
+    implode('=', [
+        'www.pgd.ro',
+        'http://www.pgd.ro/info-compare/info/'
+    ]),
+    implode('=', [
+        'lugoj2',
+        'http://160.221.78.69/3rdparty/danielgp/informator/source/info/'
+    ])
+]));
+define('IC_SOURCE', 'Transformer');
+define('IC_TARGET', 'Transformer');
+define('IC_LABEL', 'SysInfo');
