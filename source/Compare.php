@@ -40,9 +40,12 @@ class Compare
 
     private $localConfiguration;
     private $serverConfiguration;
+    private $config;
 
     public function __construct()
     {
+        global $cfg;
+        $this->config           = $cfg;
         $this->applicationFlags = [
             'available_languages' => [
                 'en_US' => 'EN',
@@ -64,7 +67,6 @@ class Compare
 
     private function displayTableFromMultiLevelArray($firstArray, $secondArray)
     {
-        global $cfg;
         if ((!is_array($firstArray)) || (!is_array($secondArray))) {
             return '';
         }
@@ -72,16 +74,16 @@ class Compare
         $secondRow    = $this->mergeArraysIntoFirstSecond($secondArray, $firstArray, ['second', 'first']);
         $row          = array_merge($firstRow, $secondRow);
         ksort($row);
-        $urlArguments = '?Label=' . $cfg['Defaults']['Label'];
+        $urlArguments = '?Label=' . $this->config['Defaults']['Label'];
         $sString[]    = '<table style="width:100%">'
             . '<thead><tr>'
             . '<th>Identifier</th>'
-            . '<th><a href="' . $cfg['Servers'][$_REQUEST['localConfig']]['url']
+            . '<th><a href="' . $this->config['Servers'][$_REQUEST['localConfig']]['url']
             . $urlArguments . '" target="_blank">'
-            . $cfg['Servers'][$_REQUEST['localConfig']]['name'] . '</a></th>'
-            . '<th><a href="' . $cfg['Servers'][$_REQUEST['serverConfig']]['url']
+            . $this->config['Servers'][$_REQUEST['localConfig']]['name'] . '</a></th>'
+            . '<th><a href="' . $this->config['Servers'][$_REQUEST['serverConfig']]['url']
             . $urlArguments . '" target="_blank">'
-            . $cfg['Servers'][$_REQUEST['serverConfig']]['name'] . '</a></th>'
+            . $this->config['Servers'][$_REQUEST['serverConfig']]['name'] . '</a></th>'
             . '</tr></thead>'
             . '<tbody>';
         if ($_REQUEST['displayOnlyDifferent'] == '1') {
@@ -157,12 +159,11 @@ class Compare
 
     private function processInfos()
     {
-        global $cfg;
         if (isset($_REQUEST['localConfig']) && isset($_REQUEST['serverConfig'])) {
-            $urlArguments              = '?Label=' . $cfg['Defaults']['Label'];
-            $source                    = $cfg['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments;
+            $urlArguments              = '?Label=' . $this->config['Defaults']['Label'];
+            $source                    = $this->config['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments;
             $this->localConfiguration  = $this->getContentFromUrlThroughCurl($source);
-            $destination               = $cfg['Servers'][$_REQUEST['serverConfig']]['url'] . $urlArguments;
+            $destination               = $this->config['Servers'][$_REQUEST['serverConfig']]['url'] . $urlArguments;
             $this->serverConfiguration = $this->getContentFromUrlThroughCurl($destination);
         } else {
             $this->localConfiguration  = ['response' => '', 'info' => ''];
@@ -172,15 +173,14 @@ class Compare
 
     private function setDefaultOptions()
     {
-        global $cfg;
         if (!isset($_REQUEST['displayOnlyDifferent'])) {
             $_REQUEST['displayOnlyDifferent'] = '1';
         }
         if (!isset($_REQUEST['localConfig'])) {
-            $_REQUEST['localConfig'] = $cfg['Defaults']['Source'];
+            $_REQUEST['localConfig'] = $this->config['Defaults']['Source'];
         }
         if (!isset($_REQUEST['serverConfig'])) {
-            $_REQUEST['serverConfig'] = $cfg['Defaults']['Target'];
+            $_REQUEST['serverConfig'] = $this->config['Defaults']['Target'];
         }
     }
 
@@ -220,7 +220,6 @@ class Compare
 
     private function setFormOptions()
     {
-        global $cfg;
         $sReturn    = [];
         $sReturn[]  = '<fieldset style="float:left;">'
             . '<legend>Type of results to be displayed</legend>'
@@ -233,7 +232,7 @@ class Compare
             . '/><label for="displayAll">All</label>'
             . '</fieldset>';
         $tmpOptions = [];
-        foreach ($cfg['Servers'] as $key => $value) {
+        foreach ($this->config['Servers'] as $key => $value) {
             $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
                 . '<input type="radio" name="localConfig" id="localConfig_'
                 . $key . '" value="' . $key . '" '
@@ -247,7 +246,7 @@ class Compare
             . '</fieldset>';
         unset($tmpOptions);
         $tmpOptions = [];
-        foreach ($cfg['Servers'] as $key => $value) {
+        foreach ($this->config['Servers'] as $key => $value) {
             $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
                 . '<input type="radio" name="serverConfig" id="serverConfig_'
                 . $key . '" value="' . $key . '" '
