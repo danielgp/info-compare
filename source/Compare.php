@@ -49,18 +49,16 @@ class Compare
                 'ro_RO' => 'RO',
             ],
             'default_language'    => 'ro_RO',
-            'error_dir'           => pathinfo(ini_get('error_log'))['dirname'],
-            'error_file'          => 'php' . PHP_VERSION_ID . 'errors_info-compare_' . date('Y-m-d') . '.log',
             'name'                => 'Info-Compare'
         ];
-
-        // generate an error log file that is for this module only and current date
-        ini_set('error_log', $this->applicationFlags['error_dir'] . '/' . $this->applicationFlags['error_file']);
         echo $this->setHeaderHtml();
-        $this->processInfos();
-        echo $this->setFormCurlInfos();
-        echo $this->setFormInfos();
+        $this->setDefaultOptions();
         echo $this->setFormOptions();
+        if (isset($_GET)) {
+            $this->processInfos();
+            echo $this->setFormCurlInfos();
+            echo $this->setFormInfos();
+        }
         echo $this->setFooterHtml();
     }
 
@@ -70,57 +68,9 @@ class Compare
         if ((!is_array($firstArray)) || (!is_array($secondArray))) {
             return '';
         }
-        $row = null;
-        foreach ($firstArray as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $key2 => $value2) {
-                    if (is_array($value2)) {
-                        foreach ($value2 as $key3 => $value3) {
-                            if (is_array($value3)) {
-                                foreach ($value3 as $key4 => $value4) {
-                                    $row[$key . '_' . $key2 . '__' . $key3 . '__' . $key4]['first']  = $value4;
-                                    $row[$key . '_' . $key2 . '__' . $key3 . '__' . $key4]['second'] = $secondArray[$key][$key2][$key3][$key4];
-                                }
-                            } else {
-                                $row[$key . '_' . $key2 . '__' . $key3]['first']  = $value3;
-                                $row[$key . '_' . $key2 . '__' . $key3]['second'] = $secondArray[$key][$key2][$key3];
-                            }
-                        }
-                    } else {
-                        $row[$key . '_' . $key2]['first']  = $value2;
-                        $row[$key . '_' . $key2]['second'] = $secondArray[$key][$key2];
-                    }
-                }
-            } else {
-                $row[$key]['first']  = $value;
-                $row[$key]['second'] = $secondArray[$key];
-            }
-        }
-        foreach ($secondArray as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $key2 => $value2) {
-                    if (is_array($value2)) {
-                        foreach ($value2 as $key3 => $value3) {
-                            if (is_array($value3)) {
-                                foreach ($value3 as $key4 => $value4) {
-                                    $row[$key . '_' . $key2 . '__' . $key3 . '__' . $key4]['second'] = $value4;
-                                    $row[$key . '_' . $key2 . '__' . $key3 . '__' . $key4]['first']  = $firstArray[$key][$key2][$key3][$key4];
-                                }
-                            } else {
-                                $row[$key . '_' . $key2 . '__' . $key3]['second'] = $value3;
-                                $row[$key . '_' . $key2 . '__' . $key3]['first']  = $firstArray[$key][$key2][$key3];
-                            }
-                        }
-                    } else {
-                        $row[$key . '_' . $key2]['second'] = $value2;
-                        $row[$key . '_' . $key2]['first']  = $firstArray[$key][$key2];
-                    }
-                }
-            } else {
-                $row[$key]['second'] = $value;
-                $row[$key]['first']  = $firstArray[$key];
-            }
-        }
+        $firstRow     = $this->mergeArraysIntoFirstSecond($firstArray, $secondArray, ['first', 'second']);
+        $secondRow    = $this->mergeArraysIntoFirstSecond($secondArray, $firstArray, ['second', 'first']);
+        $row          = array_merge($firstRow, $secondRow);
         ksort($row);
         $urlArguments = '?Label=' . $cfg['Defaults']['Label'];
         $sString[]    = '<table style="width:100%">'
@@ -153,18 +103,59 @@ class Compare
         return implode('', $sString);
     }
 
+    private function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pairingSequence = ['first', 'second'])
+    {
+        $row = [];
+        foreach ($firstArray as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $key2 => $value2) {
+                    if (is_array($value2)) {
+                        foreach ($value2 as $key3 => $value3) {
+                            if (is_array($value3)) {
+                                foreach ($value3 as $key4 => $value4) {
+                                    $keyCrt                            = $key . '_' . $key2 . '__' . $key3 . '__' . $key4;
+                                    $row[$keyCrt][$pairingSequence[0]] = $value4;
+                                    if (isset($secondArray[$key][$key2][$key3][$key4])) {
+                                        $row[$keyCrt][$pairingSequence[1]] = $secondArray[$key][$key2][$key3][$key4];
+                                    } else {
+                                        $row[$keyCrt][$pairingSequence[1]] = '';
+                                    }
+                                }
+                            } else {
+                                $keyCrt                            = $key . '_' . $key2 . '__' . $key3;
+                                $row[$keyCrt][$pairingSequence[0]] = $value3;
+                                if (isset($secondArray[$key][$key2][$key3])) {
+                                    $row[$keyCrt][$pairingSequence[1]] = $secondArray[$key][$key2][$key3];
+                                } else {
+                                    $row[$keyCrt][$pairingSequence[1]] = '';
+                                }
+                            }
+                        }
+                    } else {
+                        $keyCrt                            = $key . '_' . $key2;
+                        $row[$keyCrt][$pairingSequence[0]] = $value2;
+                        if (isset($secondArray[$key][$key2])) {
+                            $row[$keyCrt][$pairingSequence[1]] = $secondArray[$key][$key2];
+                        } else {
+                            $row[$keyCrt][$pairingSequence[1]] = '';
+                        }
+                    }
+                }
+            } else {
+                $row[$key][$pairingSequence[0]] = $value;
+                if (isset($secondArray[$key])) {
+                    $row[$key][$pairingSequence[1]] = $secondArray[$key];
+                } else {
+                    $row[$key][$pairingSequence[1]] = '';
+                }
+            }
+        }
+        return $row;
+    }
+
     private function processInfos()
     {
         global $cfg;
-        if (!isset($_REQUEST['displayOnlyDifferent'])) {
-            $_REQUEST['displayOnlyDifferent'] = '1';
-        }
-        if (!isset($_REQUEST['localConfig'])) {
-            $_REQUEST['localConfig'] = $cfg['Defaults']['Source'];
-        }
-        if (!isset($_REQUEST['serverConfig'])) {
-            $_REQUEST['serverConfig'] = $cfg['Defaults']['Target'];
-        }
         if (isset($_REQUEST['localConfig']) && isset($_REQUEST['serverConfig'])) {
             $urlArguments              = '?Label=' . $cfg['Defaults']['Label'];
             $source                    = $cfg['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments;
@@ -180,7 +171,6 @@ class Compare
     /**
      * Converts an array to string
      *
-     * @version 20141217
      * @param string $sSeparator
      * @param array $aElements
      * @return string
@@ -211,22 +201,18 @@ class Compare
         return implode($sSeparator, $sReturn);
     }
 
-    private function setClearBoth1px($height = 1)
+    private function setDefaultOptions()
     {
-        return $this->setStringIntoTag('&nbsp;', 'div', [
-                'style' => 'height:' . $height . 'px;line-height:1px;float:none;clear:both;margin:0px;'
-        ]);
-    }
-
-    /**
-     * Returns css link to a given file
-     *
-     * @param string $cssFile
-     * @return string
-     */
-    private function setCssFile($cssFile)
-    {
-        return '<link rel="stylesheet" type="text/css" href="' . $cssFile . '" />';
+        global $cfg;
+        if (!isset($_REQUEST['displayOnlyDifferent'])) {
+            $_REQUEST['displayOnlyDifferent'] = '1';
+        }
+        if (!isset($_REQUEST['localConfig'])) {
+            $_REQUEST['localConfig'] = $cfg['Defaults']['Source'];
+        }
+        if (!isset($_REQUEST['serverConfig'])) {
+            $_REQUEST['serverConfig'] = $cfg['Defaults']['Target'];
+        }
     }
 
     private function setFooterHtml()
@@ -256,8 +242,8 @@ class Compare
 
     private function setFormInfos()
     {
-        $source      = $this->localConfiguration['response'];
-        $destination = $this->serverConfiguration['response'];
+        $source      = $this->setJson2array($this->localConfiguration['response']);
+        $destination = $this->setJson2array($this->serverConfiguration['response']);
         return '<div class="tabbertab" id="tabConfigs" title="Informations">'
             . $this->displayTableFromMultiLevelArray($source, $destination)
             . '</div><!--from tabConfigs-->';
@@ -279,7 +265,8 @@ class Compare
             . '</fieldset>';
         $tmpOptions = [];
         foreach ($cfg['Servers'] as $key => $value) {
-            $tmpOptions[] = '<input type="radio" name="localConfig" id="localConfig_'
+            $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
+                . '<input type="radio" name="localConfig" id="localConfig_'
                 . $key . '" value="' . $key . '" '
                 . ($_REQUEST['localConfig'] == $key ? 'checked ' : '')
                 . '/><label for="localConfig_' . $key . '">'
@@ -292,7 +279,8 @@ class Compare
         unset($tmpOptions);
         $tmpOptions = [];
         foreach ($cfg['Servers'] as $key => $value) {
-            $tmpOptions[] = '<input type="radio" name="serverConfig" id="serverConfig_'
+            $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
+                . '<input type="radio" name="serverConfig" id="serverConfig_'
                 . $key . '" value="' . $key . '" '
                 . ($_REQUEST['serverConfig'] == $key ? 'checked ' : '')
                 . '/><label for="serverConfig_' . $key . '">'
@@ -326,87 +314,5 @@ class Compare
             . '<h1>' . $this->applicationFlags['name'] . '</h1>'
             . '<div class="tabber" id="tab">'
         ;
-    }
-
-    /**
-     * Returns javascript codes
-     *
-     * @param string $javascriptContent
-     * @return string
-     */
-    final protected function setJavascriptContent($javascriptContent)
-    {
-        return '<script type="text/javascript">' . $javascriptContent . '</script>';
-    }
-
-    /**
-     * Returns javascript link to a given file
-     *
-     * @param string $content
-     * @return string
-     */
-    final protected function setJavascriptFile($content)
-    {
-        return '<script type="text/javascript" src="' . $content . '"></script>';
-    }
-
-    /**
-     * Puts a given string into a specific short tag
-     *
-     * @param string $sTag
-     * @param array $features
-     * @return string
-     */
-    public function setStringIntoShortTag($sTag, $features = null)
-    {
-        $attributes = '';
-        if ($features != null) {
-            foreach ($features as $key => $value) {
-                if ($key != 'dont_close') {
-                    $attributes .= ' ' . $key . '="';
-                    if (is_array($value)) {
-                        foreach ($value as $key2 => $value2) {
-                            $attributes .= $key2 . ':' . $value2 . ';';
-                        }
-                    } else {
-                        $attributes .= str_replace('"', '\'', $value);
-                    }
-                    $attributes .= '"';
-                }
-            }
-        }
-        if (isset($features['dont_close'])) {
-            $sReturn = '<' . $sTag . $attributes . '>';
-        } else {
-            $sReturn = '<' . $sTag . $attributes . ' />';
-        }
-        return $sReturn;
-    }
-
-    /**
-     * Puts a given string into a specific tag
-     *
-     * @param string $sString
-     * @param string $sTag
-     * @param array $features
-     * @return string
-     */
-    public function setStringIntoTag($sString, $sTag, $features = null)
-    {
-        $attributes = '';
-        if ($features != null) {
-            foreach ($features as $key => $value) {
-                $attributes .= ' ' . $key . '="';
-                if (is_array($value)) {
-                    foreach ($value as $key2 => $value2) {
-                        $attributes .= $key2 . ':' . $value2 . ';';
-                    }
-                } else {
-                    $attributes .= $value;
-                }
-                $attributes .= '"';
-            }
-        }
-        return '<' . $sTag . $attributes . '>' . $sString . '</' . $sTag . '>';
     }
 }

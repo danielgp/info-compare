@@ -1,7 +1,6 @@
 {
     "name": "danielgp/info-compare",
     "description": "Info comparison package via CURL extension from PHP",
-    "time": "2015-01-03 12:00:00",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -15,11 +14,20 @@
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-mysqli": "*",
-        "danielgp/common-lib": ">=1.0.0"
+        "danielgp/common-lib": ">=1.1.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "source/",
+            "danielgp\\common_lib\\": "vendor/danielgp/common-lib/"
+        },
+        "classmap": [
+            "source/Compare.php"
+        ]
     },
     "minimum-stability": "stable",
     "prefer-stable":    true,
     "archive": {
-        "exclude": ["/nbproject", "*.po", "/source/scss", "/source/js/tabber.js", "/vendor", "/tests"]
+        "exclude": ["/nbproject", "/source/scss", "/source/js/tabber.js", "/vendor", "/tests"]
     }
 }

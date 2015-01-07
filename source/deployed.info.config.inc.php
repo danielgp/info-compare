@@ -25,10 +25,21 @@
  * SOFTWARE.
  *
  */
-require_once '../config/deployed.info.config.inc.php';
-require_once '../../vendor/danielgp/common-lib/source/common.inc.php';
-require_once 'compare.class.inc.php';
+$i = 0;
 
-$app = new danielgp\info_compare\Compare();
+$i++;
+$cfg['Servers'][$i]['name'] = 'Transformer';
+$cfg['Servers'][$i]['url']  = 'http://127.0.0.1/informator/source/info/';
+
+$i++;
+$cfg['Servers'][$i]['name'] = 'www.pgd.ro';
+$cfg['Servers'][$i]['url']  = 'http://www.pgd.ro/info-compare/info/';
+
+$i++;
+$cfg['Servers'][$i]['name'] = 'lugoj2';
+$cfg['Servers'][$i]['url']  = 'http://160.221.78.69/3rdparty/danielgp/informator/source/info/';
 
 
+$cfg['Defaults']['Source'] = 1;
+$cfg['Defaults']['Target'] = 1;
+$cfg['Defaults']['Label']  = 'SysInfo';

@@ -25,17 +25,9 @@
  * SOFTWARE.
  *
  */
-$i = 0;
+require_once 'deployed.info.config.inc.php';
+require_once '../vendor/autoload.php';
 
-$i++;
-$cfg['Servers'][$i]['name'] = 'Transformer';
-$cfg['Servers'][$i]['url']  = 'http://127.0.0.1/info-compare/source/info/';
-
-$i++;
-$cfg['Servers'][$i]['name'] = 'www.pgd.ro';
-$cfg['Servers'][$i]['url']  = 'http://www.pgd.ro/info-compare/info/';
+$app = new danielgp\info_compare\Compare();
 
 
-$cfg['Defaults']['Source'] = 1;
-$cfg['Defaults']['Target'] = 2;
-$cfg['Defaults']['Label']  = 'SysInfo';
