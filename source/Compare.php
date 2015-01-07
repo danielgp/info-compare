@@ -76,9 +76,11 @@ class Compare
         $sString[]    = '<table style="width:100%">'
             . '<thead><tr>'
             . '<th>Identifier</th>'
-            . '<th><a href="' . $cfg['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments . '" target="_blank">'
+            . '<th><a href="' . $cfg['Servers'][$_REQUEST['localConfig']]['url']
+            . $urlArguments . '" target="_blank">'
             . $cfg['Servers'][$_REQUEST['localConfig']]['name'] . '</a></th>'
-            . '<th><a href="' . $cfg['Servers'][$_REQUEST['serverConfig']]['url'] . $urlArguments . '" target="_blank">'
+            . '<th><a href="' . $cfg['Servers'][$_REQUEST['serverConfig']]['url']
+            . $urlArguments . '" target="_blank">'
             . $cfg['Servers'][$_REQUEST['serverConfig']]['name'] . '</a></th>'
             . '</tr></thead>'
             . '<tbody>';
@@ -103,7 +105,7 @@ class Compare
         return implode('', $sString);
     }
 
-    private function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pairingSequence = ['first', 'second'])
+    private function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pSequence = ['first', 'second'])
     {
         $row = [];
         foreach ($firstArray as $key => $value) {
@@ -113,40 +115,40 @@ class Compare
                         foreach ($value2 as $key3 => $value3) {
                             if (is_array($value3)) {
                                 foreach ($value3 as $key4 => $value4) {
-                                    $keyCrt                            = $key . '_' . $key2 . '__' . $key3 . '__' . $key4;
-                                    $row[$keyCrt][$pairingSequence[0]] = $value4;
+                                    $keyCrt                      = $key . '_' . $key2 . '__' . $key3 . '__' . $key4;
+                                    $row[$keyCrt][$pSequence[0]] = $value4;
                                     if (isset($secondArray[$key][$key2][$key3][$key4])) {
-                                        $row[$keyCrt][$pairingSequence[1]] = $secondArray[$key][$key2][$key3][$key4];
+                                        $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2][$key3][$key4];
                                     } else {
-                                        $row[$keyCrt][$pairingSequence[1]] = '';
+                                        $row[$keyCrt][$pSequence[1]] = '';
                                     }
                                 }
                             } else {
-                                $keyCrt                            = $key . '_' . $key2 . '__' . $key3;
-                                $row[$keyCrt][$pairingSequence[0]] = $value3;
+                                $keyCrt                      = $key . '_' . $key2 . '__' . $key3;
+                                $row[$keyCrt][$pSequence[0]] = $value3;
                                 if (isset($secondArray[$key][$key2][$key3])) {
-                                    $row[$keyCrt][$pairingSequence[1]] = $secondArray[$key][$key2][$key3];
+                                    $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2][$key3];
                                 } else {
-                                    $row[$keyCrt][$pairingSequence[1]] = '';
+                                    $row[$keyCrt][$pSequence[1]] = '';
                                 }
                             }
                         }
                     } else {
-                        $keyCrt                            = $key . '_' . $key2;
-                        $row[$keyCrt][$pairingSequence[0]] = $value2;
+                        $keyCrt                      = $key . '_' . $key2;
+                        $row[$keyCrt][$pSequence[0]] = $value2;
                         if (isset($secondArray[$key][$key2])) {
-                            $row[$keyCrt][$pairingSequence[1]] = $secondArray[$key][$key2];
+                            $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2];
                         } else {
-                            $row[$keyCrt][$pairingSequence[1]] = '';
+                            $row[$keyCrt][$pSequence[1]] = '';
                         }
                     }
                 }
             } else {
-                $row[$key][$pairingSequence[0]] = $value;
+                $row[$key][$pSequence[0]] = $value;
                 if (isset($secondArray[$key])) {
-                    $row[$key][$pairingSequence[1]] = $secondArray[$key];
+                    $row[$key][$pSequence[1]] = $secondArray[$key];
                 } else {
-                    $row[$key][$pairingSequence[1]] = '';
+                    $row[$key][$pSequence[1]] = '';
                 }
             }
         }
@@ -166,39 +168,6 @@ class Compare
             $this->localConfiguration  = ['response' => '', 'info' => ''];
             $this->serverConfiguration = ['response' => '', 'info' => ''];
         }
-    }
-
-    /**
-     * Converts an array to string
-     *
-     * @param string $sSeparator
-     * @param array $aElements
-     * @return string
-     */
-    private function setArray2String4Url($sSeparator, $aElements, $aExceptedElements = [''])
-    {
-        if (!is_array($aElements)) {
-            return '';
-        }
-        $sReturn = [];
-        reset($aElements);
-        foreach ($aElements as $key => $value) {
-            if (!in_array($key, $aExceptedElements)) {
-                if (is_array($aElements[$key])) {
-                    $aCounter = count($aElements[$key]);
-                    for ($counter2 = 0; $counter2 < $aCounter; $counter2++) {
-                        if ($value[$counter2] != '') {
-                            $sReturn[] = $key . '[]=' . $value[$counter2];
-                        }
-                    }
-                } else {
-                    if ($value != '') {
-                        $sReturn[] = $key . '=' . $value;
-                    }
-                }
-            }
-        }
-        return implode($sSeparator, $sReturn);
     }
 
     private function setDefaultOptions()
@@ -293,7 +262,8 @@ class Compare
             . ((!isset($_REQUEST['localConfig']) && !isset($_REQUEST['serverConfig'])) ? ' tabbertabtabdefault' : '')
             . '" id="tabOptions" title="Options">'
             . '<style>label { width: auto; }</style>'
-            . '<form method="get" action="' . $_SERVER['PHP_SELF'] . '"><input type="submit" value="Apply" /><br/>' . implode('', $sReturn) . '</form>'
+            . '<form method="get" action="' . $_SERVER['PHP_SELF']
+            . '"><input type="submit" value="Apply" /><br/>' . implode('', $sReturn) . '</form>'
             . $this->setClearBoth1px()
             . '</div><!--from tabOptions-->';
     }

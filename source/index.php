@@ -29,5 +29,3 @@ require_once 'deployed.info.config.inc.php';
 require_once '../vendor/autoload.php';
 
 $app = new danielgp\info_compare\Compare();
-
-
