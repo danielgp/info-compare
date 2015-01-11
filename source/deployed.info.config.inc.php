@@ -32,7 +32,7 @@ define('IC_SERVERS', implode('|', [
     ]),
     implode('=', [
         'www.pgd.ro',
-        'http://www.pgd.ro/info-compare/info/'
+        'http://www.pgd.ro/informator/source/info/'
     ]),
     implode('=', [
         'lugoj2',
