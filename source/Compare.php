@@ -38,6 +38,7 @@ class Compare
 
     use \danielgp\common_lib\CommonCode;
 
+    private $informatorKnownLabels;
     private $localConfiguration;
     private $serverConfiguration;
     private $config;
@@ -45,7 +46,7 @@ class Compare
     public function __construct()
     {
         $this->getConfiguration();
-        $this->applicationFlags = [
+        $this->applicationFlags      = [
             'available_languages' => [
                 'en_US' => 'EN',
                 'ro_RO' => 'RO',
@@ -53,10 +54,23 @@ class Compare
             'default_language'    => 'ro_RO',
             'name'                => 'Info-Compare'
         ];
+        $this->informatorKnownLabels = [
+            'ApacheInfo',
+            'ClientInfo',
+            'MySQLactiveDatabases',
+            'MySQLactiveEngines',
+            'MySQLgenericInfo',
+            'MySQLglobalVariables',
+            'MySQLinfo',
+            'PhpInfo',
+            'ServerInfo',
+            'SysInfo',
+            'TomcatInfo',
+        ];
         echo $this->setHeaderHtml();
         $this->setDefaultOptions();
         echo $this->setFormOptions();
-        if (isset($_GET)) {
+        if (isset($_GET['Label'])) {
             $this->processInfos();
             echo $this->setFormCurlInfos();
             echo $this->setFormInfos();
@@ -73,7 +87,7 @@ class Compare
         $secondRow    = $this->mergeArraysIntoFirstSecond($secondArray, $firstArray, ['second', 'first']);
         $row          = array_merge($firstRow, $secondRow);
         ksort($row);
-        $urlArguments = '?Label=' . $this->config['Defaults']['Label'];
+        $urlArguments = '?Label=' . $_REQUEST['Label'];
         $sString[]    = '<table style="width:100%">'
             . '<thead><tr>'
             . '<th>Identifier</th>'
@@ -175,7 +189,7 @@ class Compare
     private function processInfos()
     {
         if (isset($_REQUEST['localConfig']) && isset($_REQUEST['serverConfig'])) {
-            $urlArguments              = '?Label=' . $this->config['Defaults']['Label'];
+            $urlArguments              = '?Label=' . $_REQUEST['Label'];
             $source                    = $this->config['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments;
             $this->localConfiguration  = $this->getContentFromUrlThroughCurl($source);
             $destination               = $this->config['Servers'][$_REQUEST['serverConfig']]['url'] . $urlArguments;
@@ -197,6 +211,9 @@ class Compare
         if (!isset($_REQUEST['serverConfig'])) {
             $_REQUEST['serverConfig'] = $this->config['Defaults']['Target'];
         }
+        if (!isset($_REQUEST['Label'])) {
+            $_REQUEST['Label'] = $this->config['Defaults']['Label'];
+        }
     }
 
     private function setFooterHtml()
@@ -210,9 +227,7 @@ class Compare
             . 'included but not limited to any implication of these '
             . '(anywhere and whomever there might be these)!'
             . '</div>';
-        $sReturn[] = '</body>';
-        $sReturn[] = '</html>';
-        return implode('', $sReturn);
+        return $this->setFooterCommon(implode('', $sReturn));
     }
 
     private function setFormCurlInfos()
@@ -228,7 +243,9 @@ class Compare
     {
         $source      = $this->setJson2array($this->localConfiguration['response']);
         $destination = $this->setJson2array($this->serverConfiguration['response']);
-        return '<div class="tabbertab" id="tabConfigs" title="Informations">'
+        return '<div class="tabbertab'
+            . (isset($_GET['Label']) ? ' tabbertabdefault' : '')
+            . '" id="tabConfigs" title="Informations">'
             . $this->displayTableFromMultiLevelArray($source, $destination)
             . '</div><!--from tabConfigs-->';
     }
@@ -237,14 +254,14 @@ class Compare
     {
         $sReturn    = [];
         $sReturn[]  = '<fieldset style="float:left;">'
-            . '<legend>Type of results to be displayed</legend>'
+            . '<legend>Type of results displayed</legend>'
             . '<input type="radio" name="displayOnlyDifferent" id="displayOnlyDifferent" value="1" '
-            . ($_REQUEST['displayOnlyDifferent'] == '1' ? 'checked ' : '')
-            . '/><label for="displayOnlyDifferent">Only the Different values</label>'
+            . ($_REQUEST['displayOnlyDifferent'] == '1' ? 'checked ' : '') . '/>'
+            . '<label for="displayOnlyDifferent">Only the Different values</label>'
             . '<br/>'
             . '<input type="radio" name="displayOnlyDifferent" id="displayAll" value="0" '
-            . ($_REQUEST['displayOnlyDifferent'] == '0' ? 'checked ' : '')
-            . '/><label for="displayAll">All</label>'
+            . ($_REQUEST['displayOnlyDifferent'] == '0' ? 'checked ' : '') . '/>'
+            . '<label for="displayAll">All</label>'
             . '</fieldset>';
         $tmpOptions = [];
         foreach ($this->config['Servers'] as $key => $value) {
@@ -256,7 +273,7 @@ class Compare
                 . $value['name'] . '</label>';
         }
         $sReturn[]  = '<fieldset style="float:left;">'
-            . '<legend>List of source configuration providers</legend>'
+            . '<legend>Source configuration providers</legend>'
             . implode('<br/>', $tmpOptions)
             . '</fieldset>';
         unset($tmpOptions);
@@ -264,36 +281,44 @@ class Compare
         foreach ($this->config['Servers'] as $key => $value) {
             $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
                 . '<input type="radio" name="serverConfig" id="serverConfig_'
-                . $key . '" value="' . $key . '" '
-                . ($_REQUEST['serverConfig'] == $key ? 'checked ' : '')
-                . '/><label for="serverConfig_' . $key . '">'
-                . $value['name'] . '</label>';
+                . $key . '" value="' . $key . '" ' . ($_REQUEST['serverConfig'] == $key ? 'checked ' : '') . '/>'
+                . '<label for="serverConfig_' . $key . '">' . $value['name'] . '</label>';
+        }
+        $sReturn[]  = '<fieldset style="float:left;">'
+            . '<legend>Target configuration providers</legend>'
+            . implode('<br/>', $tmpOptions)
+            . '</fieldset>';
+        unset($tmpOptions);
+        $tmpOptions = [];
+        foreach ($this->informatorKnownLabels as $value) {
+            $tmpOptions[] = '<input type="radio" name="Label" id="Label_' . $value . '" '
+                . 'value="' . $value . '" ' . ($_REQUEST['Label'] == $value ? 'checked ' : '') . '/>'
+                . '<label for="Label_' . $value . '">' . $value . '</label>';
         }
         $sReturn[] = '<fieldset style="float:left;">'
-            . '<legend>List of target configuration providers</legend>'
-            . implode('<br/>', $tmpOptions) . '</fieldset>';
+            . '<legend>Informator Label to use</legend>'
+            . implode('<br/>', $tmpOptions)
+            . '</fieldset>';
         return '<div class="tabbertab'
             . ((!isset($_REQUEST['localConfig']) && !isset($_REQUEST['serverConfig'])) ? ' tabbertabtabdefault' : '')
             . '" id="tabOptions" title="Options">'
-            . '<style>label { width: auto; }</style>'
-            . '<form method="get" action="' . $_SERVER['PHP_SELF']
-            . '"><input type="submit" value="Apply" /><br/>' . implode('', $sReturn) . '</form>'
+            . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
+            . '<form method="get" action="' . $_SERVER['PHP_SELF'] . '">'
+            . '<input type="submit" value="Apply" />'
+            . '<br/>' . implode('', $sReturn)
+            . '</form>'
             . $this->setClearBoth1px()
             . '</div><!--from tabOptions-->';
     }
 
     private function setHeaderHtml()
     {
-        return '<!DOCTYPE html>'
-            . '<html lang="en-US">'
-            . '<head>'
-            . '<meta charset="utf-8" />'
-            . '<meta name="viewport" content="width=device-width" />'
-            . '<title>' . $this->applicationFlags['name'] . '</title>'
-            . $this->setCssFile('css/main.css')
-            . $this->setJavascriptFile('js/tabber.min.js')
-            . '</head>'
-            . '<body>'
+        return $this->setHeaderCommon([
+                'lang'       => 'en-US',
+                'title'      => $this->applicationFlags['name'],
+                'css'        => 'css/main.css',
+                'javascript' => 'js/tabber.min.js',
+            ])
             . $this->setJavascriptContent('document.write(\'<style type="text/css">.tabber{display:none;}</style>\');')
             . '<h1>' . $this->applicationFlags['name'] . '</h1>'
             . '<div class="tabber" id="tab">'
