@@ -4,32 +4,36 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4cbff67b2642622577f94dc9d81c9ddf",
+    "hash": "5026077df98cc699a6f8215a0449f689",
     "packages": [
         {
             "name": "danielgp/common-lib",
-            "version": "1.1.18.2",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielgp/common-lib.git",
-                "reference": "57ae6ec9f2eb3ce4dc13aa52342549bda3836783"
+                "reference": "fd1510473cdbe0b5107153ed473fee2340a6a222"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielgp/common-lib/zipball/57ae6ec9f2eb3ce4dc13aa52342549bda3836783",
-                "reference": "57ae6ec9f2eb3ce4dc13aa52342549bda3836783",
+                "url": "https://api.github.com/repos/danielgp/common-lib/zipball/fd1510473cdbe0b5107153ed473fee2340a6a222",
+                "reference": "fd1510473cdbe0b5107153ed473fee2340a6a222",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
+                "ext-mysqli": "*",
+                "gettext/gettext": "*",
                 "php": ">=5.4"
             },
             "type": "library",
             "autoload": {
                 "classmap": [
+                    "CommonCode.php",
+                    "DomComponentsByDanielGP.php",
+                    "MySQLiByDanielGPqueries.php",
                     "MySQLiByDanielGP.php",
-                    "RomanianHolidays.php",
-                    "CommonCode.php"
+                    "RomanianHolidays.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -44,27 +48,34 @@
                 }
             ],
             "description": "Common functions to be used where needed",
-            "time": "2015-02-24 09:19:05"
+            "time": "2015-03-13 13:45:30"
         },
         {
-            "name": "rhumsaa/array_column",
-            "version": "1.1.2",
+            "name": "gettext/gettext",
+            "version": "v3.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ramsey/array_column.git",
-                "reference": "c09744baae0e023d1021055f9c65755b88a9721f"
+                "url": "https://github.com/oscarotero/Gettext.git",
+                "reference": "3addf67466e8ab129b8a5b15ad374c3d1a9359b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/array_column/zipball/c09744baae0e023d1021055f9c65755b88a9721f",
-                "reference": "c09744baae0e023d1021055f9c65755b88a9721f",
+                "url": "https://api.github.com/repos/oscarotero/Gettext/zipball/3addf67466e8ab129b8a5b15ad374c3d1a9359b3",
+                "reference": "3addf67466e8ab129b8a5b15ad374c3d1a9359b3",
                 "shasum": ""
+            },
+            "require": {
+                "gettext/languages": "2.*",
+                "php": ">=5.3.0"
+            },
+            "suggest": {
+                "illuminate/view": "Is necessary if you want use the Blade extractor"
             },
             "type": "library",
             "autoload": {
-                "files": [
-                    "src/array_column.php"
-                ]
+                "psr-4": {
+                    "Gettext\\": "src"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -72,19 +83,77 @@
             ],
             "authors": [
                 {
-                    "name": "Ben Ramsey",
-                    "homepage": "http://benramsey.com",
+                    "name": "Oscar Otero",
+                    "email": "oom@oscarotero.com",
+                    "homepage": "http://oscarotero.com",
                     "role": "Developer"
                 }
             ],
-            "description": "Provides functionality for array_column() to projects using PHP earlier than version 5.5.",
-            "homepage": "https://github.com/ramsey/array_column",
+            "description": "PHP gettext manager",
+            "homepage": "https://github.com/oscarotero/Gettext",
             "keywords": [
-                "array",
-                "array_column",
-                "column"
+                "JS",
+                "gettext",
+                "i18n",
+                "mo",
+                "po",
+                "translation"
             ],
-            "time": "2013-07-22 16:12:38"
+            "time": "2015-02-16 11:52:19"
+        },
+        {
+            "name": "gettext/languages",
+            "version": "v2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mlocati/cldr-to-gettext-plural-rules.git",
+                "reference": "7ea1b22590480e21950ab15ef7f56090153d3d21"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mlocati/cldr-to-gettext-plural-rules/zipball/7ea1b22590480e21950ab15ef7f56090153d3d21",
+                "reference": "7ea1b22590480e21950ab15ef7f56090153d3d21",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Gettext\\Languages\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michele Locati",
+                    "email": "mlocati@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "gettext languages with plural rules",
+            "homepage": "https://github.com/mlocati/cldr-to-gettext-plural-rules",
+            "keywords": [
+                "cldr",
+                "i18n",
+                "internationalization",
+                "l10n",
+                "language",
+                "languages",
+                "localization",
+                "php",
+                "plural",
+                "plural rules",
+                "plurals",
+                "translate",
+                "translations",
+                "unicode"
+            ],
+            "time": "2015-02-24 09:33:40"
         }
     ],
     "packages-dev": [],
@@ -94,7 +163,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.4",
+        "php": ">=5.5",
         "ext-curl": "*",
         "ext-mysqli": "*"
     },
