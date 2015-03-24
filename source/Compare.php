@@ -54,19 +54,11 @@ class Compare
             'default_language'    => 'ro_RO',
             'name'                => 'Info-Compare'
         ];
-        $this->informatorKnownLabels = [
-            'ApacheInfo',
-            'ClientInfo',
-            'MySQLactiveDatabases',
-            'MySQLactiveEngines',
-            'MySQLgenericInfo',
-            'MySQLglobalVariables',
-            'MySQLinfo',
-            'PhpInfo',
-            'ServerInfo',
-            'SysInfo',
-            'TomcatInfo',
-        ];
+        echo '<hr/>';
+        $urlToGetKnownLabels         = $this->config['Servers'][$this->config['Defaults']['Source']]['url']
+            . '?Label=---' . urlencode(' List of known labels');
+        $knownLabels                 = $this->getContentFromUrlThroughCurl($urlToGetKnownLabels)['response'];
+        $this->informatorKnownLabels = array_diff($this->setJson2array($knownLabels), ['--- List of known labels']);
         echo $this->setHeaderHtml();
         $this->setDefaultOptions();
         echo $this->setFormOptions();
@@ -189,7 +181,7 @@ class Compare
     private function processInfos()
     {
         if (isset($_REQUEST['localConfig']) && isset($_REQUEST['serverConfig'])) {
-            $urlArguments              = '?Label=' . $_REQUEST['Label'];
+            $urlArguments              = '?Label=' . urlencode($_REQUEST['Label']);
             $source                    = $this->config['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments;
             $this->localConfiguration  = $this->getContentFromUrlThroughCurl($source);
             $destination               = $this->config['Servers'][$_REQUEST['serverConfig']]['url'] . $urlArguments;
