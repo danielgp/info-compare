@@ -54,11 +54,10 @@ class Compare
             'default_language'    => 'ro_RO',
             'name'                => 'Info-Compare'
         ];
-        echo '<hr/>';
-        $urlToGetKnownLabels         = $this->config['Servers'][$this->config['Defaults']['Source']]['url']
+        $urlToGetLbl                 = $this->config['Servers'][$this->config['Defaults']['Source']]['url']
             . '?Label=---' . urlencode(' List of known labels');
-        $knownLabels                 = $this->getContentFromUrlThroughCurl($urlToGetKnownLabels)['response'];
-        $this->informatorKnownLabels = array_diff($this->setJson2array($knownLabels), ['--- List of known labels']);
+        $knownLabels                 = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
+        $this->informatorKnownLabels = array_diff($knownLabels, ['--- List of known labels']);
         echo $this->setHeaderHtml();
         $this->setDefaultOptions();
         echo $this->setFormOptions();
@@ -183,9 +182,9 @@ class Compare
         if (isset($_REQUEST['localConfig']) && isset($_REQUEST['serverConfig'])) {
             $urlArguments              = '?Label=' . urlencode($_REQUEST['Label']);
             $source                    = $this->config['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments;
-            $this->localConfiguration  = $this->getContentFromUrlThroughCurl($source);
+            $this->localConfiguration  = $this->getContentFromUrlThroughCurlAsArrayIfJson($source);
             $destination               = $this->config['Servers'][$_REQUEST['serverConfig']]['url'] . $urlArguments;
-            $this->serverConfiguration = $this->getContentFromUrlThroughCurl($destination);
+            $this->serverConfiguration = $this->getContentFromUrlThroughCurlAsArrayIfJson($destination);
         } else {
             $this->localConfiguration  = ['response' => '', 'info' => ''];
             $this->serverConfiguration = ['response' => '', 'info' => ''];
@@ -233,8 +232,8 @@ class Compare
 
     private function setFormInfos()
     {
-        $source      = $this->setJson2array($this->localConfiguration['response']);
-        $destination = $this->setJson2array($this->serverConfiguration['response']);
+        $source      = $this->localConfiguration['response'];
+        $destination = $this->serverConfiguration['response'];
         return '<div class="tabbertab'
             . (isset($_GET['Label']) ? ' tabbertabdefault' : '')
             . '" id="tabConfigs" title="Informations">'
