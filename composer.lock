@@ -8,32 +8,36 @@
     "packages": [
         {
             "name": "danielgp/common-lib",
-            "version": "1.7.6",
+            "version": "1.8.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielgp/common-lib.git",
-                "reference": "574697cd855c6e0acefcb60401235d38bc3e4176"
+                "reference": "ed496c1f472f975ef22bd7f888b942413e7cbf57"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielgp/common-lib/zipball/574697cd855c6e0acefcb60401235d38bc3e4176",
-                "reference": "574697cd855c6e0acefcb60401235d38bc3e4176",
+                "url": "https://api.github.com/repos/danielgp/common-lib/zipball/ed496c1f472f975ef22bd7f888b942413e7cbf57",
+                "reference": "ed496c1f472f975ef22bd7f888b942413e7cbf57",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-mysqli": "*",
                 "gettext/gettext": "*",
-                "php": ">=5.4"
+                "php": ">=5.4",
+                "phpoffice/phpexcel": "*",
+                "symfony/filesystem": "*",
+                "symfony/finder": "*"
             },
             "type": "library",
             "autoload": {
                 "classmap": [
                     "source/CommonCode.php",
-                    "source/DomComponentsByDanielGPwithCDN.php",
                     "source/DomComponentsByDanielGP.php",
+                    "source/DomComponentsByDanielGPwithCDN.php",
                     "source/MySQLiByDanielGPqueries.php",
                     "source/MySQLiByDanielGP.php",
+                    "source/NetworkComponentsByDanielGP.php",
                     "source/RomanianHolidays.php"
                 ]
             },
@@ -49,20 +53,20 @@
                 }
             ],
             "description": "Common functions to be used where needed",
-            "time": "2015-04-19 15:31:15"
+            "time": "2015-04-29 23:17:17"
         },
         {
             "name": "gettext/gettext",
-            "version": "v3.4",
+            "version": "v3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/oscarotero/Gettext.git",
-                "reference": "843c87d345b5be3bd168d77cf09ecaca72b74f8f"
+                "reference": "6d8fae62ce7df8676a351dfa5728c8f87f20ef53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oscarotero/Gettext/zipball/843c87d345b5be3bd168d77cf09ecaca72b74f8f",
-                "reference": "843c87d345b5be3bd168d77cf09ecaca72b74f8f",
+                "url": "https://api.github.com/repos/oscarotero/Gettext/zipball/6d8fae62ce7df8676a351dfa5728c8f87f20ef53",
+                "reference": "6d8fae62ce7df8676a351dfa5728c8f87f20ef53",
                 "shasum": ""
             },
             "require": {
@@ -71,6 +75,7 @@
             },
             "require-dev": {
                 "illuminate/view": "*",
+                "phpunit/phpunit": "~4.0",
                 "twig/extensions": "*",
                 "twig/twig": "*"
             },
@@ -107,7 +112,7 @@
                 "po",
                 "translation"
             ],
-            "time": "2015-04-06 09:38:45"
+            "time": "2015-04-28 17:50:01"
         },
         {
             "name": "gettext/languages",
@@ -162,6 +167,163 @@
                 "unicode"
             ],
             "time": "2015-03-27 11:32:41"
+        },
+        {
+            "name": "phpoffice/phpexcel",
+            "version": "1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/PHPExcel.git",
+                "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
+                "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=5.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "PHPExcel": "Classes/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Maarten Balliauw",
+                    "homepage": "http://blog.maartenballiauw.be"
+                },
+                {
+                    "name": "Mark Baker"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "http://blog.rootslabs.net"
+                },
+                {
+                    "name": "Erik Tilt"
+                }
+            ],
+            "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+            "homepage": "http://phpexcel.codeplex.com",
+            "keywords": [
+                "OpenXML",
+                "excel",
+                "php",
+                "spreadsheet",
+                "xls",
+                "xlsx"
+            ],
+            "time": "2014-03-02 15:22:49"
+        },
+        {
+            "name": "symfony/filesystem",
+            "version": "v2.6.6",
+            "target-dir": "Symfony/Component/Filesystem",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Filesystem.git",
+                "reference": "4983964b3693e4f13449cb3800c64a9112c301b4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/4983964b3693e4f13449cb3800c64a9112c301b4",
+                "reference": "4983964b3693e4f13449cb3800c64a9112c301b4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "~2.7"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Symfony Filesystem Component",
+            "homepage": "http://symfony.com",
+            "time": "2015-03-22 16:55:57"
+        },
+        {
+            "name": "symfony/finder",
+            "version": "v2.6.6",
+            "target-dir": "Symfony/Component/Finder",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Finder.git",
+                "reference": "5dbe2e73a580618f5b4880fda93406eed25de251"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Finder/zipball/5dbe2e73a580618f5b4880fda93406eed25de251",
+                "reference": "5dbe2e73a580618f5b4880fda93406eed25de251",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "~2.7"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Finder\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Symfony Finder Component",
+            "homepage": "http://symfony.com",
+            "time": "2015-03-30 15:54:10"
         }
     ],
     "packages-dev": [],
