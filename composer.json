@@ -14,7 +14,8 @@
         "php": ">=5.5",
         "ext-curl": "*",
         "ext-mysqli": "*",
-        "danielgp/common-lib": "*"
+        "danielgp/common-lib": "*",
+        "danielgp/common-styles": "*"
     },
     "autoload": {
         "psr-4": {
