@@ -27,8 +27,12 @@
  */
 define('IC_SERVERS', implode('|', [
     implode('=', [
-        'Transformer',
+        'Localhost',
         'http://127.0.0.1/informator/source/info/'
+    ]),
+    implode('=', [
+        'LocalhostNew',
+        'http://127.0.0.1:700/informator/source/info/'
     ]),
     implode('=', [
         'www.pgd.ro',
