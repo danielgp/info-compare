@@ -15,7 +15,8 @@
         "ext-curl": "*",
         "ext-mysqli": "*",
         "danielgp/common-lib": "*",
-        "danielgp/common-styles": "*"
+        "danielgp/common-styles": "*",
+        "symfony/http-foundation": ">3.0"
     },
     "autoload": {
         "psr-4": {
@@ -25,6 +26,7 @@
         },
         "classmap": [
             "source/ConfigurationCompare.php",
+            "source/OutputFormBuilder.php",
             "source/Compare.php"
         ]
     },

@@ -37,9 +37,10 @@ class Compare
 {
 
     use \danielgp\common_lib\CommonCode,
-        \danielgp\info_compare\ConfigurationCompare;
+        \danielgp\info_compare\ConfigurationCompare,
+        \danielgp\info_compare\OutputFormBuilder;
 
-    private $informatorKnownLabels;
+    private $informatorInternalArray;
     private $localConfiguration;
     private $serverConfiguration;
     private $config;
@@ -47,7 +48,7 @@ class Compare
     public function __construct()
     {
         $this->getConfiguration();
-        $this->applicationFlags      = [
+        $this->applicationFlags                        = [
             'available_languages' => [
                 'en_US' => 'EN',
                 'ro_RO' => 'RO',
@@ -55,12 +56,10 @@ class Compare
             'default_language'    => 'ro_RO',
             'name'                => 'Info-Compare'
         ];
-        $urlToGetLbl                 = $this->config['Servers'][$this->config['Defaults']['Source']]['url']
-                . '?Label=---' . urlencode(' List of known labels');
-        $knownLabels                 = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
-        $this->informatorKnownLabels = array_diff($knownLabels, ['--- List of known labels']);
         echo $this->setHeaderHtml();
         $this->setDefaultOptions();
+        $rqst                                          = new \Symfony\Component\HttpFoundation\Request;
+        $this->informatorInternalArray['superGlobals'] = $rqst->createFromGlobals();
         echo $this->setFormOptions();
         if (isset($_GET['Label'])) {
             $this->processInfos();
@@ -79,19 +78,19 @@ class Compare
         $secondRow    = $this->mergeArraysIntoFirstSecond($secondArray, $firstArray, ['second', 'first']);
         $row          = array_merge($firstRow, $secondRow);
         ksort($row);
-        $urlArguments = '?Label=' . $_REQUEST['Label'];
+        $urlArguments = '?Label=' . $_GET['Label'];
         $sString[]    = '<table style="width:100%">'
                 . '<thead><tr>'
                 . '<th>Identifier</th>'
-                . '<th><a href="' . $this->config['Servers'][$_REQUEST['localConfig']]['url']
+                . '<th><a href="' . $this->config['Servers'][$_GET['localConfig']]['url']
                 . $urlArguments . '" target="_blank">'
-                . $this->config['Servers'][$_REQUEST['localConfig']]['name'] . '</a></th>'
-                . '<th><a href="' . $this->config['Servers'][$_REQUEST['serverConfig']]['url']
+                . $this->config['Servers'][$_GET['localConfig']]['name'] . '</a></th>'
+                . '<th><a href="' . $this->config['Servers'][$_GET['serverConfig']]['url']
                 . $urlArguments . '" target="_blank">'
-                . $this->config['Servers'][$_REQUEST['serverConfig']]['name'] . '</a></th>'
+                . $this->config['Servers'][$_GET['serverConfig']]['name'] . '</a></th>'
                 . '</tr></thead>'
                 . '<tbody>';
-        if ($_REQUEST['displayOnlyDifferent'] == '1') {
+        if ($_GET['displayOnlyDifferent'] == '1') {
             $displayOnlyDifferent = true;
         } else {
             $displayOnlyDifferent = false;
@@ -121,10 +120,11 @@ class Compare
                 'url'  => $value,
             ];
         }
-        $haystack                           = array_keys($storedConfiguration['informators']);
-        $this->config['Defaults']['Label']  = $storedConfiguration['default']['label'];
-        $this->config['Defaults']['Source'] = array_search($storedConfiguration['default']['source'], $haystack);
-        $this->config['Defaults']['Target'] = array_search($storedConfiguration['default']['target'], $haystack);
+        $haystack                                = array_keys($storedConfiguration['informators']);
+        $this->config['Defaults']['Label']       = $storedConfiguration['default']['label'];
+        $this->config['Defaults']['Source']      = array_search($storedConfiguration['default']['source'], $haystack);
+        $this->config['Defaults']['Target']      = array_search($storedConfiguration['default']['target'], $haystack);
+        $this->config['Defaults']['ResultsType'] = $storedConfiguration['default']['typeOfResults'];
     }
 
     private function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pSequence = ['first', 'second'])
@@ -179,11 +179,11 @@ class Compare
 
     private function processInfos()
     {
-        if (isset($_REQUEST['localConfig']) && isset($_REQUEST['serverConfig'])) {
-            $urlArguments              = '?Label=' . urlencode($_REQUEST['Label']);
-            $source                    = $this->config['Servers'][$_REQUEST['localConfig']]['url'] . $urlArguments;
+        if (isset($_GET['localConfig']) && isset($_GET['serverConfig'])) {
+            $urlArguments              = '?Label=' . urlencode($_GET['Label']);
+            $source                    = $this->config['Servers'][$_GET['localConfig']]['url'] . $urlArguments;
             $this->localConfiguration  = $this->getContentFromUrlThroughCurlAsArrayIfJson($source);
-            $destination               = $this->config['Servers'][$_REQUEST['serverConfig']]['url'] . $urlArguments;
+            $destination               = $this->config['Servers'][$_GET['serverConfig']]['url'] . $urlArguments;
             $this->serverConfiguration = $this->getContentFromUrlThroughCurlAsArrayIfJson($destination);
         } else {
             $this->localConfiguration  = ['response' => '', 'info' => ''];
@@ -193,17 +193,17 @@ class Compare
 
     private function setDefaultOptions()
     {
-        if (!isset($_REQUEST['displayOnlyDifferent'])) {
-            $_REQUEST['displayOnlyDifferent'] = '1';
+        if (!isset($_GET['displayOnlyDifferent'])) {
+            $_GET['displayOnlyDifferent'] = $this->config['Defaults']['ResultsType'];
         }
-        if (!isset($_REQUEST['localConfig'])) {
-            $_REQUEST['localConfig'] = $this->config['Defaults']['Source'];
+        if (!isset($_GET['localConfig'])) {
+            $_GET['localConfig'] = $this->config['Defaults']['Source'];
         }
-        if (!isset($_REQUEST['serverConfig'])) {
-            $_REQUEST['serverConfig'] = $this->config['Defaults']['Target'];
+        if (!isset($_GET['serverConfig'])) {
+            $_GET['serverConfig'] = $this->config['Defaults']['Target'];
         }
-        if (!isset($_REQUEST['Label'])) {
-            $_REQUEST['Label'] = $this->config['Defaults']['Label'];
+        if (!isset($_GET['Label'])) {
+            $_GET['Label'] = $this->config['Defaults']['Label'];
         }
     }
 
@@ -241,67 +241,6 @@ class Compare
                 . '</div><!--from tabConfigs-->';
     }
 
-    private function setFormOptions()
-    {
-        $sReturn    = [];
-        $sReturn[]  = '<fieldset style="float:left;">'
-                . '<legend>Type of results displayed</legend>'
-                . '<input type="radio" name="displayOnlyDifferent" id="displayOnlyDifferent" value="1" '
-                . ($_REQUEST['displayOnlyDifferent'] == '1' ? 'checked ' : '') . '/>'
-                . '<label for="displayOnlyDifferent">Only the Different values</label>'
-                . '<br/>'
-                . '<input type="radio" name="displayOnlyDifferent" id="displayAll" value="0" '
-                . ($_REQUEST['displayOnlyDifferent'] == '0' ? 'checked ' : '') . '/>'
-                . '<label for="displayAll">All</label>'
-                . '</fieldset>';
-        $tmpOptions = [];
-        foreach ($this->config['Servers'] as $key => $value) {
-            $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
-                    . '<input type="radio" name="localConfig" id="localConfig_'
-                    . $key . '" value="' . $key . '" '
-                    . ($_REQUEST['localConfig'] == $key ? 'checked ' : '')
-                    . '/><label for="localConfig_' . $key . '">'
-                    . $value['name'] . '</label>';
-        }
-        $sReturn[]  = '<fieldset style="float:left;">'
-                . '<legend>Source configuration providers</legend>'
-                . implode('<br/>', $tmpOptions)
-                . '</fieldset>';
-        unset($tmpOptions);
-        $tmpOptions = [];
-        foreach ($this->config['Servers'] as $key => $value) {
-            $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
-                    . '<input type="radio" name="serverConfig" id="serverConfig_'
-                    . $key . '" value="' . $key . '" ' . ($_REQUEST['serverConfig'] == $key ? 'checked ' : '') . '/>'
-                    . '<label for="serverConfig_' . $key . '">' . $value['name'] . '</label>';
-        }
-        $sReturn[]  = '<fieldset style="float:left;">'
-                . '<legend>Target configuration providers</legend>'
-                . implode('<br/>', $tmpOptions)
-                . '</fieldset>';
-        unset($tmpOptions);
-        $tmpOptions = [];
-        foreach ($this->informatorKnownLabels as $value) {
-            $tmpOptions[] = '<input type="radio" name="Label" id="Label_' . $value . '" '
-                    . 'value="' . $value . '" ' . ($_REQUEST['Label'] == $value ? 'checked ' : '') . '/>'
-                    . '<label for="Label_' . $value . '">' . $value . '</label>';
-        }
-        $sReturn[] = '<fieldset style="float:left;">'
-                . '<legend>Informator Label to use</legend>'
-                . implode('<br/>', $tmpOptions)
-                . '</fieldset>';
-        return '<div class="tabbertab'
-                . ((!isset($_REQUEST['localConfig']) && !isset($_REQUEST['serverConfig'])) ? ' tabbertabtabdefault' : '')
-                . '" id="tabOptions" title="Options">'
-                . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
-                . '<form method="get" action="' . $_SERVER['PHP_SELF'] . '">'
-                . '<input type="submit" value="Apply" />'
-                . '<br/>' . implode('', $sReturn)
-                . '</form>'
-                . $this->setClearBoth1px()
-                . '</div><!--from tabOptions-->';
-    }
-
     private function setHeaderHtml()
     {
         return $this->setHeaderCommon([
@@ -312,7 +251,6 @@ class Compare
                 ])
                 . $this->setJavascriptContent('document.write(\'<style type="text/css">.tabber{display:none;}</style>\');')
                 . '<h1>' . $this->applicationFlags['name'] . '</h1>'
-                . '<div class="tabber" id="tab">'
-        ;
+                . '<div class="tabber" id="tab">';
     }
 }
