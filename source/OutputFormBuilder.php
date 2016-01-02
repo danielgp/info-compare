@@ -29,11 +29,8 @@ namespace danielgp\info_compare;
 trait OutputFormBuilder
 {
 
-    private function listOfKnownLabels()
+    private function listOfKnownLabels($knownLabels)
     {
-        $urlToGetLbl           = $this->config['Servers'][$this->config['Defaults']['Source']]['url']
-                . '?Label=---' . urlencode(' List of known labels');
-        $knownLabels           = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
         $informatorKnownLabels = array_diff($knownLabels, ['--- List of known labels']);
         $tmpOptions            = [];
         foreach ($informatorKnownLabels as $value) {
@@ -65,7 +62,7 @@ trait OutputFormBuilder
                 . '</fieldset>';
     }
 
-    protected function setFormOptions()
+    protected function setFormOptions($knownLabels)
     {
         $sReturn   = [];
         $sReturn[] = $this->typeOfResults();
@@ -77,7 +74,7 @@ trait OutputFormBuilder
             'TitleStart' => 'Target',
             'ConfigName' => 'serverConfig',
         ]);
-        $sReturn[] = $this->listOfKnownLabels();
+        $sReturn[] = $this->listOfKnownLabels($knownLabels);
         return '<div class="tabbertab" id="tabOptions" title="Options">'
                 . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
                 . '<form method="get" action="'
@@ -91,7 +88,7 @@ trait OutputFormBuilder
 
     private function turnRequestedValueIntoCheckboxStatus($requestedName, $checkedValue)
     {
-        $requestedNameValue = $this->informatorInternalArray['superGlobals']->get($requestedName);
+        $requestedNameValue = $this->informatorInternalArray['sGlobals']->get($requestedName);
         $checkboxStatus     = '';
         if ($requestedNameValue === $checkedValue) {
             $checkboxStatus = 'checked ';

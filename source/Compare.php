@@ -48,7 +48,7 @@ class Compare
     public function __construct()
     {
         $this->getConfiguration();
-        $this->applicationFlags                        = [
+        $this->applicationFlags = [
             'available_languages' => [
                 'en_US' => 'EN',
                 'ro_RO' => 'RO',
@@ -57,10 +57,8 @@ class Compare
             'name'                => 'Info-Compare'
         ];
         echo $this->setHeaderHtml();
-        $this->setDefaultOptions();
-        $rqst                                          = new \Symfony\Component\HttpFoundation\Request;
-        $this->informatorInternalArray['superGlobals'] = $rqst->createFromGlobals();
-        echo $this->setFormOptions();
+        $knownLabels            = $this->prepareForOutputForm();
+        echo $this->setFormOptions($knownLabels);
         if (isset($_GET['Label'])) {
             $this->processInfos();
             echo $this->setFormCurlInfos();
@@ -175,6 +173,18 @@ class Compare
             }
         }
         return $row;
+    }
+
+    private function prepareForOutputForm()
+    {
+        $this->setDefaultOptions();
+        $rqst                                      = new \Symfony\Component\HttpFoundation\Request;
+        $this->informatorInternalArray['sGlobals'] = $rqst->createFromGlobals();
+        $urlToGetLbl                               = $this->config['Servers'
+                . ''][$this->config['Defaults']['Source']]['url']
+                . '?Label=---' . urlencode(' List of known labels');
+        $knownLabels                               = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl);
+        return $knownLabels['response'];
     }
 
     private function processInfos()
