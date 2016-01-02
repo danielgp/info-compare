@@ -40,7 +40,7 @@ class Compare
         \danielgp\info_compare\ConfigurationCompare,
         \danielgp\info_compare\OutputFormBuilder;
 
-    private $informatorInternalArray;
+    private $informatorInternalArray = [];
     private $localConfiguration;
     private $serverConfiguration;
     private $config;
