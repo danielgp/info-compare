@@ -40,10 +40,9 @@ class Compare
         \danielgp\info_compare\ConfigurationCompare,
         \danielgp\info_compare\OutputFormBuilder;
 
-    private $informatorInternalArray = [];
+    private $config;
     private $localConfiguration;
     private $serverConfiguration;
-    private $config;
 
     public function __construct()
     {
@@ -57,8 +56,7 @@ class Compare
             'name'                => 'Info-Compare'
         ];
         echo $this->setHeaderHtml();
-        $knownLabels            = $this->prepareForOutputForm();
-        echo $this->setFormOptions($knownLabels);
+        $this->prepareForOutputForm();
         if (isset($_GET['Label'])) {
             $this->processInfos();
             echo $this->setFormCurlInfos();
@@ -178,13 +176,13 @@ class Compare
     private function prepareForOutputForm()
     {
         $this->setDefaultOptions();
-        $rqst                                      = new \Symfony\Component\HttpFoundation\Request;
-        $this->informatorInternalArray['sGlobals'] = $rqst->createFromGlobals();
-        $urlToGetLbl                               = $this->config['Servers'
+        $rqst         = new \Symfony\Component\HttpFoundation\Request;
+        $superGlobals = $rqst->createFromGlobals();
+        $urlToGetLbl  = $this->config['Servers'
                 . ''][$this->config['Defaults']['Source']]['url']
                 . '?Label=---' . urlencode(' List of known labels');
-        $knownLabels                               = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl);
-        return $knownLabels['response'];
+        $knownLabels  = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
+        echo $this->setFormOptions($superGlobals, $knownLabels);
     }
 
     private function processInfos()
