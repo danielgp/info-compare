@@ -24,6 +24,7 @@
             "danielgp\\common_lib\\": "vendor/danielgp/common-lib/"
         },
         "classmap": [
+            "source/ConfigurationCompare.php",
             "source/Compare.php"
         ]
     },

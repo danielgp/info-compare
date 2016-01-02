@@ -25,24 +25,6 @@
  * SOFTWARE.
  *
  */
-define('IC_SERVERS', implode('|', [
-    implode('=', [
-        'Localhost',
-        'http://127.0.0.1/informator/source/info/'
-    ]),
-    implode('=', [
-        'LocalhostNew',
-        'http://127.0.0.1:700/informator/source/info/'
-    ]),
-    implode('=', [
-        'www.pgd.ro',
-        'http://www.pgd.ro/informator/source/info/'
-    ]),
-    implode('=', [
-        'lugoj2',
-        'http://160.221.78.69/3rdparty/danielgp/informator/source/info/'
-    ])
-]));
-define('IC_SOURCE', 'Transformer');
-define('IC_TARGET', 'Transformer');
-define('IC_LABEL', 'SysInfo');
+require_once 'vendor/autoload.php';
+
+$app = new danielgp\info_compare\Compare();

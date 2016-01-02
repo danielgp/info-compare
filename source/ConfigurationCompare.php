@@ -3,7 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Daniel Popiniuc.
+ * Copyright 2016 Daniel Popiniuc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,4 +24,26 @@
  * THE SOFTWARE.
  */
 
-header('Location: ../index.php');
+namespace danielgp\info_compare;
+
+trait ConfigurationCompare
+{
+
+    protected function configuredDeployedInformators()
+    {
+        return [
+            'informators' => [
+                'Localhost'        => 'http://127.0.0.1/informator/',
+                'Localhost Secure' => 'https://127.0.0.1/informator/',
+                'My website'       => 'http://www.pgd.ro/informator/source/info/',
+                'Marcman'          => 'http://www.marcman.ro/informator/3rdparty/informator/',
+                'Lugoj2'           => 'http://160.221.78.69/3rdparty/danielgp/informator/source/info/',
+            ],
+            'default'     => [
+                'label'  => 'System Info',
+                'source' => 'Localhost',
+                'target' => 'Localhost Secure',
+            ],
+        ];
+    }
+}
