@@ -182,8 +182,9 @@ class Compare
                 . '?Label=---' . urlencode(' List of known labels');
         $knownLabels  = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
         echo $this->setFormOptions([
-            'SuperGlobals' => $superGlobals,
             'KnownLabels'  => $knownLabels,
+            'Servers'      => $this->config['Servers'],
+            'SuperGlobals' => $superGlobals,
         ]);
     }
 

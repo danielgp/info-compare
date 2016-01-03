@@ -52,7 +52,7 @@ trait OutputFormBuilder
     private function providers($inArray)
     {
         $tmpOptions = [];
-        foreach ($this->config['Servers'] as $key => $value) {
+        foreach ($inArray['Servers'] as $key => $value) {
             $tmpOptions[] = '<a href="' . $value['url'] . '" target="_blank">run-me</a>&nbsp;'
                     . '<input type="radio" name="' . $inArray['ConfigName'] . '" id="'
                     . $inArray['ConfigName'] . '_' . $key . '" value="' . $key . '" '
@@ -75,20 +75,23 @@ trait OutputFormBuilder
         $sReturn   = [];
         $sReturn[] = $this->typeOfResults($inArray['SuperGlobals']);
         $sReturn[] = $this->providers([
+            'ConfigName'   => 'localConfig',
+            'Servers'      => $inArray['Servers'],
             'SuperGlobals' => $inArray['SuperGlobals'],
             'TitleStart'   => 'Source',
-            'ConfigName'   => 'localConfig',
         ]);
         $sReturn[] = $this->providers([
+            'ConfigName'   => 'serverConfig',
+            'Servers'      => $inArray['Servers'],
             'SuperGlobals' => $inArray['SuperGlobals'],
             'TitleStart'   => 'Target',
-            'ConfigName'   => 'serverConfig',
         ]);
         $sReturn[] = $this->listOfKnownLabels($inArray);
         return '<div class="tabbertab" id="tabOptions" title="Options">'
                 . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
                 . '<form method="get" action="'
-                . $_SERVER['PHP_SELF'] . '">'
+                . $inArray['SuperGlobals']->server->get('PHP_SELF')
+                . '">'
                 . '<input type="submit" value="Apply" />'
                 . '<br/>' . implode('', $sReturn)
                 . '</form>'
