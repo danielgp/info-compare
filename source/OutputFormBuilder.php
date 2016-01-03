@@ -36,9 +36,10 @@ trait OutputFormBuilder
         foreach ($informatorKnownLabels as $value) {
             $tmpOptions[] = '<input type="radio" name="Label" id="Label_' . $value . '" value="' . $value . '" '
                     . $this->turnRequestedValueIntoCheckboxStatus([
-                        'SuperGlobals'  => $inArray['SuperGlobals'],
-                        'RequestedName' => 'Label',
                         'CheckedValue'  => $value,
+                        'Defaults'      => $inArray['Defaults'],
+                        'RequestedName' => 'Label',
+                        'SuperGlobals'  => $inArray['SuperGlobals'],
                     ])
                     . '/>'
                     . '<label for="Label_' . $value . '">' . $value . '</label>';
@@ -57,9 +58,10 @@ trait OutputFormBuilder
                     . '<input type="radio" name="' . $inArray['ConfigName'] . '" id="'
                     . $inArray['ConfigName'] . '_' . $key . '" value="' . $key . '" '
                     . $this->turnRequestedValueIntoCheckboxStatus([
-                        'SuperGlobals'  => $inArray['SuperGlobals'],
-                        'RequestedName' => $inArray['ConfigName'],
                         'CheckedValue'  => (string) $key,
+                        'Defaults'      => $inArray['Defaults'],
+                        'RequestedName' => $inArray['ConfigName'],
+                        'SuperGlobals'  => $inArray['SuperGlobals'],
                     ])
                     . '/>'
                     . '<label for="' . $inArray['ConfigName'] . '_' . $key . '">' . $value['name'] . '</label>';
@@ -73,20 +75,29 @@ trait OutputFormBuilder
     protected function setFormOptions($inArray)
     {
         $sReturn   = [];
-        $sReturn[] = $this->typeOfResults($inArray['SuperGlobals']);
+        $sReturn[] = $this->typeOfResults([
+            'Defaults'     => $inArray['Defaults'],
+            'SuperGlobals' => $inArray['SuperGlobals'],
+        ]);
         $sReturn[] = $this->providers([
             'ConfigName'   => 'localConfig',
+            'Defaults'     => $inArray['Defaults'],
             'Servers'      => $inArray['Servers'],
             'SuperGlobals' => $inArray['SuperGlobals'],
             'TitleStart'   => 'Source',
         ]);
         $sReturn[] = $this->providers([
             'ConfigName'   => 'serverConfig',
+            'Defaults'     => $inArray['Defaults'],
             'Servers'      => $inArray['Servers'],
             'SuperGlobals' => $inArray['SuperGlobals'],
             'TitleStart'   => 'Target',
         ]);
-        $sReturn[] = $this->listOfKnownLabels($inArray);
+        $sReturn[] = $this->listOfKnownLabels([
+            'Defaults'     => $inArray['Defaults'],
+            'KnownLabels'  => $inArray['KnownLabels'],
+            'SuperGlobals' => $inArray['SuperGlobals'],
+        ]);
         return '<div class="tabbertab" id="tabOptions" title="Options">'
                 . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
                 . '<form method="get" action="'
@@ -101,6 +112,18 @@ trait OutputFormBuilder
 
     private function turnRequestedValueIntoCheckboxStatus($inArray)
     {
+        if (is_null($inArray['SuperGlobals']->get($inArray['RequestedName']))) {
+            $valToSet = (string) $inArray['Defaults'][$inArray['RequestedName']];
+            $inArray['SuperGlobals']->request->set($inArray['RequestedName'], $valToSet);
+        }
+//        var_dump($inArray['RequestedName']);
+//        echo '<hr/>';
+//        var_dump($inArray['SuperGlobals']->get($inArray['RequestedName']));
+//        echo '<hr/>';
+//        var_dump((string) $inArray['Defaults'][$inArray['RequestedName']]);
+//        echo '<hr/>';
+//        var_dump($inArray['CheckedValue']);
+//        die();
         $checkboxStatus = '';
         if ($inArray['SuperGlobals']->get($inArray['RequestedName']) === $inArray['CheckedValue']) {
             $checkboxStatus = 'checked ';
@@ -108,24 +131,26 @@ trait OutputFormBuilder
         return $checkboxStatus;
     }
 
-    private function typeOfResults($superGlobals)
+    private function typeOfResults($inArray)
     {
         return '<fieldset style="float:left;">'
                 . '<legend>Type of results displayed</legend>'
                 . '<input type="radio" name="displayOnlyDifferent" id="displayOnlyDifferent" value="1" '
                 . $this->turnRequestedValueIntoCheckboxStatus([
-                    'SuperGlobals'  => $superGlobals,
-                    'RequestedName' => 'displayOnlyDifferent',
                     'CheckedValue'  => '1',
+                    'Defaults'      => $inArray['Defaults'],
+                    'RequestedName' => 'displayOnlyDifferent',
+                    'SuperGlobals'  => $inArray['SuperGlobals'],
                 ])
                 . '/>'
                 . '<label for="displayOnlyDifferent">Only the Different values</label>'
                 . '<br/>'
                 . '<input type="radio" name="displayOnlyDifferent" id="displayAll" value="0" '
                 . $this->turnRequestedValueIntoCheckboxStatus([
-                    'SuperGlobals'  => $superGlobals,
-                    'RequestedName' => 'displayOnlyDifferent',
                     'CheckedValue'  => '0',
+                    'Defaults'      => $inArray['Defaults'],
+                    'RequestedName' => 'displayOnlyDifferent',
+                    'SuperGlobals'  => $inArray['SuperGlobals'],
                 ])
                 . '/>'
                 . '<label for="displayAll">All</label>'

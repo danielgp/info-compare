@@ -56,16 +56,20 @@ class Compare
             'name'                => 'Info-Compare'
         ];
         echo $this->setHeaderHtml();
-        $this->prepareForOutputForm();
-        if (isset($_GET['Label'])) {
+        $rqst                   = new \Symfony\Component\HttpFoundation\Request;
+        $superGlobals           = $rqst->createFromGlobals();
+        $this->prepareForOutputForm([
+            'SuperGlobals' => $superGlobals,
+        ]);
+        if (!is_null($superGlobals->get('Label'))) {
             $this->processInfos();
-            echo $this->setFormCurlInfos();
-            echo $this->setFormInfos();
+            echo $this->setFormCurlInfos($superGlobals);
+            echo $this->setFormInfos($superGlobals);
         }
         echo $this->setFooterHtml();
     }
 
-    private function displayTableFromMultiLevelArray($firstArray, $secondArray)
+    private function displayTableFromMultiLevelArray($firstArray, $secondArray, $superGlobals)
     {
         if ((!is_array($firstArray)) || (!is_array($secondArray))) {
             return '';
@@ -86,7 +90,7 @@ class Compare
                 . $this->config['Servers'][$_GET['serverConfig']]['name'] . '</a></th>'
                 . '</tr></thead>'
                 . '<tbody>';
-        if ($_GET['displayOnlyDifferent'] == '1') {
+        if ($superGlobals->get('displayOnlyDifferent') == '1') {
             $displayOnlyDifferent = true;
         } else {
             $displayOnlyDifferent = false;
@@ -109,18 +113,18 @@ class Compare
 
     private function getConfiguration()
     {
-        $storedConfiguration = $this->configuredDeployedInformators();
-        foreach ($storedConfiguration['informators'] as $key => $value) {
+        $strdConfig = $this->configuredDeployedInformators();
+        foreach ($strdConfig['informators'] as $key => $value) {
             $this->config['Servers'][] = [
                 'name' => $key,
                 'url'  => $value,
             ];
         }
-        $haystack                                = array_keys($storedConfiguration['informators']);
-        $this->config['Defaults']['Label']       = $storedConfiguration['default']['label'];
-        $this->config['Defaults']['Source']      = array_search($storedConfiguration['default']['source'], $haystack);
-        $this->config['Defaults']['Target']      = array_search($storedConfiguration['default']['target'], $haystack);
-        $this->config['Defaults']['ResultsType'] = $storedConfiguration['default']['typeOfResults'];
+        $haystack                                         = array_keys($strdConfig['informators']);
+        $this->config['Defaults']['Label']                = $strdConfig['default']['label'];
+        $this->config['Defaults']['localConfig']          = array_search($strdConfig['default']['source'], $haystack);
+        $this->config['Defaults']['serverConfig']         = array_search($strdConfig['default']['target'], $haystack);
+        $this->config['Defaults']['displayOnlyDifferent'] = $strdConfig['default']['typeOfResults'];
     }
 
     private function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pSequence = ['first', 'second'])
@@ -173,18 +177,16 @@ class Compare
         return $row;
     }
 
-    private function prepareForOutputForm()
+    private function prepareForOutputForm($inArray)
     {
-        $this->setDefaultOptions();
-        $rqst         = new \Symfony\Component\HttpFoundation\Request;
-        $superGlobals = $rqst->createFromGlobals();
-        $urlToGetLbl  = $this->config['Servers'][$this->config['Defaults']['Source']]['url']
+        $urlToGetLbl = $this->config['Servers'][$this->config['Defaults']['localConfig']]['url']
                 . '?Label=---' . urlencode(' List of known labels');
-        $knownLabels  = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
+        $knownLabels = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
         echo $this->setFormOptions([
+            'Defaults'     => $this->config['Defaults'],
             'KnownLabels'  => $knownLabels,
             'Servers'      => $this->config['Servers'],
-            'SuperGlobals' => $superGlobals,
+            'SuperGlobals' => $inArray['SuperGlobals'],
         ]);
     }
 
@@ -202,22 +204,6 @@ class Compare
         }
     }
 
-    private function setDefaultOptions()
-    {
-        if (!isset($_GET['displayOnlyDifferent'])) {
-            $_GET['displayOnlyDifferent'] = $this->config['Defaults']['ResultsType'];
-        }
-        if (!isset($_GET['localConfig'])) {
-            $_GET['localConfig'] = $this->config['Defaults']['Source'];
-        }
-        if (!isset($_GET['serverConfig'])) {
-            $_GET['serverConfig'] = $this->config['Defaults']['Target'];
-        }
-        if (!isset($_GET['Label'])) {
-            $_GET['Label'] = $this->config['Defaults']['Label'];
-        }
-    }
-
     private function setFooterHtml()
     {
         $sReturn   = [];
@@ -232,23 +218,23 @@ class Compare
         return $this->setFooterCommon(implode('', $sReturn));
     }
 
-    private function setFormCurlInfos()
+    private function setFormCurlInfos($superGlobals)
     {
         $source      = $this->localConfiguration['info'];
         $destination = $this->serverConfiguration['info'];
         return '<div class="tabbertab" id="tabCurl" title="CURL infos">'
-                . $this->displayTableFromMultiLevelArray($source, $destination)
+                . $this->displayTableFromMultiLevelArray($source, $destination, $superGlobals)
                 . '</div><!--from tabCurl-->';
     }
 
-    private function setFormInfos()
+    private function setFormInfos($superGlobals)
     {
         $source      = $this->localConfiguration['response'];
         $destination = $this->serverConfiguration['response'];
         return '<div class="tabbertab'
                 . (isset($_GET['Label']) ? ' tabbertabdefault' : '')
                 . '" id="tabConfigs" title="Informations">'
-                . $this->displayTableFromMultiLevelArray($source, $destination)
+                . $this->displayTableFromMultiLevelArray($source, $destination, $superGlobals)
                 . '</div><!--from tabConfigs-->';
     }
 
