@@ -34,9 +34,9 @@ trait OutputFormBuilder
 
     private function listOfKnownLabels($inArray)
     {
-        $informatorKnownLabels = array_diff($inArray['KnownLabels'], ['--- List of known labels']);
+        $informatorLabels = array_diff($inArray['KnownLabels'], ['--- List of known labels']);
         $tmpOptions            = [];
-        foreach ($informatorKnownLabels as $value) {
+        foreach ($informatorLabels as $value) {
             $tmpOptions[] = '<input type="radio" name="Label" id="Label_' . $value . '" value="' . $value . '" '
                     . $this->turnRequestedValueIntoCheckboxStatus([
                         'CheckedValue'  => $value,

@@ -57,7 +57,7 @@ class Compare
         $superGlobals           = $rqst->createFromGlobals();
         $this->prepareForOutputForm(['SuperGlobals' => $superGlobals]);
         if (!is_null($superGlobals->get('Label'))) {
-            $this->processInfos();
+            $this->processInfos(['sGlobals' => $superGlobals]);
             echo $this->setFormCurlInfos(['SuperGlobals' => $superGlobals]);
             echo $this->setFormInfos(['SuperGlobals' => $superGlobals]);
         }
@@ -191,13 +191,15 @@ class Compare
         ]);
     }
 
-    private function processInfos()
+    private function processInfos($inArray)
     {
-        if (isset($_GET['localConfig']) && isset($_GET['serverConfig'])) {
-            $urlArguments              = '?Label=' . urlencode($_GET['Label']);
-            $source                    = $this->config['Servers'][$_GET['localConfig']]['url'] . $urlArguments;
+        if (!is_null($inArray['sGlobals']->get('localConfig')) && !is_null($inArray['sGlobals']->get('serverConfig'))) {
+            $urlArguments              = '?Label=' . urlencode($inArray['sGlobals']->get('Label'));
+            $source                    = $this->config['Servers'][$inArray['sGlobals']->get('localConfig')]['url']
+                    . $urlArguments;
             $this->localConfiguration  = $this->getContentFromUrlThroughCurlAsArrayIfJson($source);
-            $destination               = $this->config['Servers'][$_GET['serverConfig']]['url'] . $urlArguments;
+            $destination               = $this->config['Servers'][$inArray['sGlobals']->get('serverConfig')]['url']
+                    . $urlArguments;
             $this->serverConfiguration = $this->getContentFromUrlThroughCurlAsArrayIfJson($destination);
         } else {
             $this->localConfiguration  = ['response' => '', 'info' => ''];
