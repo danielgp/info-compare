@@ -63,34 +63,44 @@ class Compare
         ]);
         if (!is_null($superGlobals->get('Label'))) {
             $this->processInfos();
-            echo $this->setFormCurlInfos($superGlobals);
-            echo $this->setFormInfos($superGlobals);
+            echo $this->setFormCurlInfos([
+                'SuperGlobals' => $superGlobals,
+            ]);
+            echo $this->setFormInfos([
+                'SuperGlobals' => $superGlobals,
+            ]);
         }
         echo $this->setFooterHtml();
     }
 
-    private function displayTableFromMultiLevelArray($firstArray, $secondArray, $superGlobals)
+    private function displayTableFromMultiLevelArray($inArray)
     {
-        if ((!is_array($firstArray)) || (!is_array($secondArray))) {
+        if ((!is_array($inArray['source'])) || (!is_array($inArray['destination']))) {
             return '';
         }
-        $firstRow     = $this->mergeArraysIntoFirstSecond($firstArray, $secondArray, ['first', 'second']);
-        $secondRow    = $this->mergeArraysIntoFirstSecond($secondArray, $firstArray, ['second', 'first']);
+        $firstRow     = $this->mergeArraysIntoFirstSecond($inArray['source'], $inArray['destination'], [
+            'first',
+            'second',
+        ]);
+        $secondRow    = $this->mergeArraysIntoFirstSecond($inArray['destination'], $inArray['source'], [
+            'second',
+            'first',
+        ]);
         $row          = array_merge($firstRow, $secondRow);
         ksort($row);
-        $urlArguments = '?Label=' . $_GET['Label'];
+        $urlArguments = '?Label=' . $inArray['SuperGlobals']->get('Label');
         $sString[]    = '<table style="width:100%">'
                 . '<thead><tr>'
                 . '<th>Identifier</th>'
-                . '<th><a href="' . $this->config['Servers'][$_GET['localConfig']]['url']
+                . '<th><a href="' . $this->config['Servers'][$inArray['SuperGlobals']->get('localConfig')]['url']
                 . $urlArguments . '" target="_blank">'
-                . $this->config['Servers'][$_GET['localConfig']]['name'] . '</a></th>'
-                . '<th><a href="' . $this->config['Servers'][$_GET['serverConfig']]['url']
+                . $this->config['Servers'][$inArray['SuperGlobals']->get('localConfig')]['name'] . '</a></th>'
+                . '<th><a href="' . $this->config['Servers'][$inArray['SuperGlobals']->get('serverConfig')]['url']
                 . $urlArguments . '" target="_blank">'
-                . $this->config['Servers'][$_GET['serverConfig']]['name'] . '</a></th>'
+                . $this->config['Servers'][$inArray['SuperGlobals']->get('serverConfig')]['name'] . '</a></th>'
                 . '</tr></thead>'
                 . '<tbody>';
-        if ($superGlobals->get('displayOnlyDifferent') == '1') {
+        if ($inArray['SuperGlobals']->get('displayOnlyDifferent') == '1') {
             $displayOnlyDifferent = true;
         } else {
             $displayOnlyDifferent = false;
@@ -218,23 +228,27 @@ class Compare
         return $this->setFooterCommon(implode('', $sReturn));
     }
 
-    private function setFormCurlInfos($superGlobals)
+    private function setFormCurlInfos($inArray)
     {
-        $source      = $this->localConfiguration['info'];
-        $destination = $this->serverConfiguration['info'];
         return '<div class="tabbertab" id="tabCurl" title="CURL infos">'
-                . $this->displayTableFromMultiLevelArray($source, $destination, $superGlobals)
+                . $this->displayTableFromMultiLevelArray([
+                    'source'       => $this->localConfiguration['info'],
+                    'destination'  => $this->serverConfiguration['info'],
+                    'SuperGlobals' => $inArray['SuperGlobals'],
+                ])
                 . '</div><!--from tabCurl-->';
     }
 
-    private function setFormInfos($superGlobals)
+    private function setFormInfos($inArray)
     {
-        $source      = $this->localConfiguration['response'];
-        $destination = $this->serverConfiguration['response'];
         return '<div class="tabbertab'
-                . (isset($_GET['Label']) ? ' tabbertabdefault' : '')
+                . (is_null($inArray['SuperGlobals']->get('Label')) ? '' : ' tabbertabdefault')
                 . '" id="tabConfigs" title="Informations">'
-                . $this->displayTableFromMultiLevelArray($source, $destination, $superGlobals)
+                . $this->displayTableFromMultiLevelArray([
+                    'source'       => $this->localConfiguration['response'],
+                    'destination'  => $this->serverConfiguration['response'],
+                    'SuperGlobals' => $inArray['SuperGlobals'],
+                ])
                 . '</div><!--from tabConfigs-->';
     }
 
