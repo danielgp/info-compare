@@ -59,13 +59,13 @@ trait CompareTable
 
     private function displayTableRow($inArray)
     {
-        $sString = '';
+        $sString = $inArray['rowContent'];
         if ($inArray['displayOnlyDifferent']) {
-            if ($inArray['first'] != $inArray['second']) {
+            if ($inArray['first'] == $inArray['second']) {
+                $sString = '';
+            } elseif ($inArray['first'] != $inArray['second']) {
                 $sString = $inArray['rowContent'];
             }
-        } else {
-            $sString = $inArray['rowContent'];
         }
         return $sString;
     }

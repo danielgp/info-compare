@@ -91,6 +91,8 @@ class Compare
 
     private function processInfos($inArray)
     {
+        $this->localConfiguration  = ['response' => '', 'info' => ''];
+        $this->serverConfiguration = ['response' => '', 'info' => ''];
         if (!is_null($inArray['sGlobals']->get('localConfig')) && !is_null($inArray['sGlobals']->get('serverConfig'))) {
             $urlArguments              = '?Label=' . urlencode($inArray['sGlobals']->get('Label'));
             $source                    = $this->config['Servers'][$inArray['sGlobals']->get('localConfig')]['url']
@@ -99,9 +101,6 @@ class Compare
             $destination               = $this->config['Servers'][$inArray['sGlobals']->get('serverConfig')]['url']
                     . $urlArguments;
             $this->serverConfiguration = $this->getContentFromUrlThroughCurlAsArrayIfJson($destination);
-        } else {
-            $this->localConfiguration  = ['response' => '', 'info' => ''];
-            $this->serverConfiguration = ['response' => '', 'info' => ''];
         }
     }
 
