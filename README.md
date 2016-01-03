@@ -1,6 +1,6 @@
 info-compare
 ============
-Compare configurations between servers via CURL and JSON details
+Compare configurations between servers via CURL with JSON details
 
 Packagist statistics by poser.pugx.org
 [![Latest Stable Version](https://poser.pugx.org/danielgp/info-compare/v/stable)](https://packagist.org/packages/danielgp/info-compare)

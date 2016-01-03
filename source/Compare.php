@@ -38,7 +38,8 @@ class Compare
 
     use \danielgp\common_lib\CommonCode,
         \danielgp\info_compare\ConfigurationCompare,
-        \danielgp\info_compare\OutputFormBuilder;
+        \danielgp\info_compare\OutputFormBuilder,
+        \danielgp\info_compare\CompareTable;
 
     private $config;
     private $localConfiguration;
@@ -59,55 +60,6 @@ class Compare
         echo $this->setFooterHtml();
     }
 
-    private function displayTableFromMultiLevelArray($inArray)
-    {
-        if ((!is_array($inArray['source'])) || (!is_array($inArray['destination']))) {
-            return '';
-        }
-        $firstRow     = $this->mergeArraysIntoFirstSecond($inArray['source'], $inArray['destination'], [
-            'first',
-            'second',
-        ]);
-        $secondRow    = $this->mergeArraysIntoFirstSecond($inArray['destination'], $inArray['source'], [
-            'second',
-            'first',
-        ]);
-        $row          = array_merge($firstRow, $secondRow);
-        ksort($row);
-        $urlArguments = '?Label=' . $inArray['SuperGlobals']->get('Label');
-        $sString      = [];
-        $sString[]    = '<table style="width:100%">'
-                . '<thead><tr>'
-                . '<th>Identifier</th>'
-                . '<th><a href="' . $this->config['Servers'][$inArray['SuperGlobals']->get('localConfig')]['url']
-                . $urlArguments . '" target="_blank">'
-                . $this->config['Servers'][$inArray['SuperGlobals']->get('localConfig')]['name'] . '</a></th>'
-                . '<th><a href="' . $this->config['Servers'][$inArray['SuperGlobals']->get('serverConfig')]['url']
-                . $urlArguments . '" target="_blank">'
-                . $this->config['Servers'][$inArray['SuperGlobals']->get('serverConfig')]['name'] . '</a></th>'
-                . '</tr></thead>'
-                . '<tbody>';
-        if ($inArray['SuperGlobals']->get('displayOnlyDifferent') == '1') {
-            $displayOnlyDifferent = true;
-        } else {
-            $displayOnlyDifferent = false;
-        }
-        foreach ($row as $key => $value) {
-            $rowString = '<tr><td style="width:20%;">' . $key . '</td><td style="width:40%;">'
-                    . str_replace(',', ', ', $value['first']) . '</td><td style="width:40%;">'
-                    . str_replace(',', ', ', $value['second']) . '</td></tr>';
-            if ($displayOnlyDifferent) {
-                if ($value['first'] != $value['second']) {
-                    $sString[] = $rowString;
-                }
-            } else {
-                $sString[] = $rowString;
-            }
-        }
-        $sString[] = '</tbody></table>';
-        return implode('', $sString);
-    }
-
     private function getConfiguration()
     {
         $strdConfig = $this->configuredDeployedInformators();
@@ -122,56 +74,6 @@ class Compare
         $this->config['Defaults']['localConfig']          = array_search($strdConfig['default']['source'], $haystack);
         $this->config['Defaults']['serverConfig']         = array_search($strdConfig['default']['target'], $haystack);
         $this->config['Defaults']['displayOnlyDifferent'] = $strdConfig['default']['typeOfResults'];
-    }
-
-    private function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pSequence = ['first', 'second'])
-    {
-        $row = [];
-        foreach ($firstArray as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $key2 => $value2) {
-                    if (is_array($value2)) {
-                        foreach ($value2 as $key3 => $value3) {
-                            if (is_array($value3)) {
-                                foreach ($value3 as $key4 => $value4) {
-                                    $keyCrt                      = $key . '_' . $key2 . '__' . $key3 . '__' . $key4;
-                                    $row[$keyCrt][$pSequence[0]] = $value4;
-                                    if (isset($secondArray[$key][$key2][$key3][$key4])) {
-                                        $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2][$key3][$key4];
-                                    } else {
-                                        $row[$keyCrt][$pSequence[1]] = '';
-                                    }
-                                }
-                            } else {
-                                $keyCrt                      = $key . '_' . $key2 . '__' . $key3;
-                                $row[$keyCrt][$pSequence[0]] = $value3;
-                                if (isset($secondArray[$key][$key2][$key3])) {
-                                    $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2][$key3];
-                                } else {
-                                    $row[$keyCrt][$pSequence[1]] = '';
-                                }
-                            }
-                        }
-                    } else {
-                        $keyCrt                      = $key . '_' . $key2;
-                        $row[$keyCrt][$pSequence[0]] = $value2;
-                        if (isset($secondArray[$key][$key2])) {
-                            $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2];
-                        } else {
-                            $row[$keyCrt][$pSequence[1]] = '';
-                        }
-                    }
-                }
-            } else {
-                $row[$key][$pSequence[0]] = $value;
-                if (isset($secondArray[$key])) {
-                    $row[$key][$pSequence[1]] = $secondArray[$key];
-                } else {
-                    $row[$key][$pSequence[1]] = '';
-                }
-            }
-        }
-        return $row;
     }
 
     private function prepareForOutputForm($inArray)
@@ -208,11 +110,8 @@ class Compare
         $footerToInject = [
             '</div><!-- from main Tabber -->',
             '<div class="resetOnly author">&copy; 2015 Daniel Popiniuc</div>',
-            '<hr/>',
-            '<div class="disclaimer">',
-            'The developer cannot be liable of any data input or results, ',
-            'included but not limited to any implication of these ',
-            '(anywhere and whomever there might be these)!',
+            '<hr/><div class="disclaimer">The developer cannot be liable of any data input or results, ',
+            'included but not limited to any implication of these (anywhere and whomever there might be these)!',
             '</div>',
         ];
         return $this->setFooterCommon($footerToInject);
@@ -224,6 +123,7 @@ class Compare
                 . $this->displayTableFromMultiLevelArray([
                     'source'       => $this->localConfiguration['info'],
                     'destination'  => $this->serverConfiguration['info'],
+                    'Servers'      => $this->config['Servers'],
                     'SuperGlobals' => $inArray['SuperGlobals'],
                 ])
                 . '</div><!--from tabCurl-->';
@@ -237,6 +137,7 @@ class Compare
                 . $this->displayTableFromMultiLevelArray([
                     'source'       => $this->localConfiguration['response'],
                     'destination'  => $this->serverConfiguration['response'],
+                    'Servers'      => $this->config['Servers'],
                     'SuperGlobals' => $inArray['SuperGlobals'],
                 ])
                 . '</div><!--from tabConfigs-->';
@@ -250,7 +151,8 @@ class Compare
                     'css'        => 'css/main.css',
                     'javascript' => 'js/tabber.min.js',
                 ])
-                . $this->setJavascriptContent('document.write(\'<style type="text/css">.tabber{display:none;}</style>\');')
+                . $this->setJavascriptContent('document.write(\'<style type="text/css">'
+                        . '.tabber{display:none;}</style>\');')
                 . '<h1>' . $this->configuredApplicationName() . '</h1>'
                 . '<div class="tabber" id="tab">';
     }

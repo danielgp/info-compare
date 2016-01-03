@@ -27,6 +27,8 @@
         "classmap": [
             "source/ConfigurationCompare.php",
             "source/OutputFormBuilder.php",
+            "source/CompareResults.php",
+            "source/CompareTable.php",
             "source/Compare.php"
         ]
     },
