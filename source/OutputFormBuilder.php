@@ -62,7 +62,7 @@ trait OutputFormBuilder
                 . '</fieldset>';
     }
 
-    protected function setFormOptions($superGlobals, $knownLabels)
+    protected function setFormOptions($knownLabels, $superGlobals)
     {
         $sReturn   = [];
         $sReturn[] = $this->typeOfResults($superGlobals);

@@ -182,7 +182,7 @@ class Compare
                 . ''][$this->config['Defaults']['Source']]['url']
                 . '?Label=---' . urlencode(' List of known labels');
         $knownLabels  = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
-        echo $this->setFormOptions($superGlobals, $knownLabels);
+        echo $this->setFormOptions($knownLabels, $superGlobals);
     }
 
     private function processInfos()
