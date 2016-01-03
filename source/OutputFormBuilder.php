@@ -62,21 +62,21 @@ trait OutputFormBuilder
                 . '</fieldset>';
     }
 
-    protected function setFormOptions($knownLabels, $superGlobals)
+    protected function setFormOptions($inArray)
     {
         $sReturn   = [];
-        $sReturn[] = $this->typeOfResults($superGlobals);
+        $sReturn[] = $this->typeOfResults($inArray['SuperGlobals']);
         $sReturn[] = $this->providers([
-            'SuperGlobals' => $superGlobals,
+            'SuperGlobals' => $inArray['SuperGlobals'],
             'TitleStart'   => 'Source',
             'ConfigName'   => 'localConfig',
         ]);
         $sReturn[] = $this->providers([
-            'SuperGlobals' => $superGlobals,
+            'SuperGlobals' => $inArray['SuperGlobals'],
             'TitleStart'   => 'Target',
             'ConfigName'   => 'serverConfig',
         ]);
-        $sReturn[] = $this->listOfKnownLabels($superGlobals, $knownLabels);
+        $sReturn[] = $this->listOfKnownLabels($inArray['SuperGlobals'], $inArray['KnownLabels']);
         return '<div class="tabbertab" id="tabOptions" title="Options">'
                 . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
                 . '<form method="get" action="'

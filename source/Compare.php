@@ -178,11 +178,13 @@ class Compare
         $this->setDefaultOptions();
         $rqst         = new \Symfony\Component\HttpFoundation\Request;
         $superGlobals = $rqst->createFromGlobals();
-        $urlToGetLbl  = $this->config['Servers'
-                . ''][$this->config['Defaults']['Source']]['url']
+        $urlToGetLbl  = $this->config['Servers'][$this->config['Defaults']['Source']]['url']
                 . '?Label=---' . urlencode(' List of known labels');
         $knownLabels  = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
-        echo $this->setFormOptions($knownLabels, $superGlobals);
+        echo $this->setFormOptions([
+            'SuperGlobals' => $superGlobals,
+            'KnownLabels'  => $knownLabels,
+        ]);
     }
 
     private function processInfos()
