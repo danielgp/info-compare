@@ -29,6 +29,16 @@ namespace danielgp\info_compare;
 trait CompareResults
 {
 
+    private function decideToReturn($inValue)
+    {
+        if (isset($inValue)) {
+            $sReturn = $inValue;
+        } else {
+            $sReturn = '';
+        }
+        return $sReturn;
+    }
+
     protected function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pSequence = ['first', 'second'])
     {
         $row = [];
@@ -41,39 +51,24 @@ trait CompareResults
                                 foreach ($value3 as $key4 => $value4) {
                                     $keyCrt                      = $key . '_' . $key2 . '__' . $key3 . '__' . $key4;
                                     $row[$keyCrt][$pSequence[0]] = $value4;
-                                    if (isset($secondArray[$key][$key2][$key3][$key4])) {
-                                        $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2][$key3][$key4];
-                                    } else {
-                                        $row[$keyCrt][$pSequence[1]] = '';
-                                    }
+                                    $toEval                      = $secondArray[$key][$key2][$key3][$key4];
+                                    $row[$keyCrt][$pSequence[1]] = $this->decideToReturn($toEval);
                                 }
                             } else {
                                 $keyCrt                      = $key . '_' . $key2 . '__' . $key3;
                                 $row[$keyCrt][$pSequence[0]] = $value3;
-                                if (isset($secondArray[$key][$key2][$key3])) {
-                                    $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2][$key3];
-                                } else {
-                                    $row[$keyCrt][$pSequence[1]] = '';
-                                }
+                                $row[$keyCrt][$pSequence[1]] = $this->decideToReturn($secondArray[$key][$key2][$key3]);
                             }
                         }
                     } else {
                         $keyCrt                      = $key . '_' . $key2;
                         $row[$keyCrt][$pSequence[0]] = $value2;
-                        if (isset($secondArray[$key][$key2])) {
-                            $row[$keyCrt][$pSequence[1]] = $secondArray[$key][$key2];
-                        } else {
-                            $row[$keyCrt][$pSequence[1]] = '';
-                        }
+                        $row[$keyCrt][$pSequence[1]] = $this->decideToReturn($secondArray[$key][$key2]);
                     }
                 }
             } else {
                 $row[$key][$pSequence[0]] = $value;
-                if (isset($secondArray[$key])) {
-                    $row[$key][$pSequence[1]] = $secondArray[$key];
-                } else {
-                    $row[$key][$pSequence[1]] = '';
-                }
+                $row[$key][$pSequence[1]] = $this->decideToReturn($secondArray[$key]);
             }
         }
         return $row;
