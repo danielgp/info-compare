@@ -205,16 +205,14 @@ class Compare
 
     private function setFooterHtml()
     {
-        $sReturn   = [];
-        $sReturn[] = '</div><!-- from main Tabber -->';
-        $sReturn[] = '<div class="resetOnly author">&copy; 2015 Daniel Popiniuc</div>';
-        $sReturn[] = '<hr/>';
-        $sReturn[] = '<div class="disclaimer">'
-                . 'The developer cannot be liable of any data input or results, '
-                . 'included but not limited to any implication of these '
-                . '(anywhere and whomever there might be these)!'
-                . '</div>';
-        return $this->setFooterCommon(implode('', $sReturn));
+        return $this->setFooterCommon('</div><!-- from main Tabber -->'
+                        . '<div class="resetOnly author">&copy; 2015 Daniel Popiniuc</div>'
+                        . '<hr/>'
+                        . '<div class="disclaimer">'
+                        . 'The developer cannot be liable of any data input or results, '
+                        . 'included but not limited to any implication of these '
+                        . '(anywhere and whomever there might be these)!'
+                        . '</div>');
     }
 
     private function setFormCurlInfos($inArray)
