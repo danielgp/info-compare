@@ -40,10 +40,14 @@ trait ConfigurationCompare
                 'Lugoj2'           => 'http://160.221.78.69/3rdparty/danielgp/informator/source/info/',
             ],
             'default'     => [
-                'label'         => 'Php General',
-                'source'        => 'Localhost',
-                'target'        => 'Localhost Secure',
-                'typeOfResults' => 1, // 0 for "All", 1 for "Only different values"
+                'label'                   => 'Php General',
+                'source'                  => 'Localhost',
+                'target'                  => 'Localhost Secure',
+                'typeOfResults'           => 1,
+                'typeOfResults_Explained' => [
+                    0 => 'All',
+                    1 => 'Only the Different values',
+                ]
             ],
         ];
     }
