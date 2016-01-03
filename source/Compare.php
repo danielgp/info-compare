@@ -48,27 +48,18 @@ class Compare
     {
         $this->getConfiguration();
         $this->applicationFlags = [
-            'available_languages' => [
-                'en_US' => 'EN',
-                'ro_RO' => 'RO',
-            ],
+            'available_languages' => ['en_US' => 'EN', 'ro_RO' => 'RO'],
             'default_language'    => 'ro_RO',
             'name'                => 'Info-Compare'
         ];
         echo $this->setHeaderHtml();
         $rqst                   = new \Symfony\Component\HttpFoundation\Request;
         $superGlobals           = $rqst->createFromGlobals();
-        $this->prepareForOutputForm([
-            'SuperGlobals' => $superGlobals,
-        ]);
+        $this->prepareForOutputForm(['SuperGlobals' => $superGlobals]);
         if (!is_null($superGlobals->get('Label'))) {
             $this->processInfos();
-            echo $this->setFormCurlInfos([
-                'SuperGlobals' => $superGlobals,
-            ]);
-            echo $this->setFormInfos([
-                'SuperGlobals' => $superGlobals,
-            ]);
+            echo $this->setFormCurlInfos(['SuperGlobals' => $superGlobals]);
+            echo $this->setFormInfos(['SuperGlobals' => $superGlobals]);
         }
         echo $this->setFooterHtml();
     }
