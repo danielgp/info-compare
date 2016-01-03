@@ -47,4 +47,9 @@ trait ConfigurationCompare
             ],
         ];
     }
+
+    protected function configuredApplicationName()
+    {
+        return 'Info-Compare';
+    }
 }

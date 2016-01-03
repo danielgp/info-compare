@@ -47,14 +47,9 @@ class Compare
     public function __construct()
     {
         $this->getConfiguration();
-        $this->applicationFlags = [
-            'available_languages' => ['en_US' => 'EN', 'ro_RO' => 'RO'],
-            'default_language'    => 'ro_RO',
-            'name'                => 'Info-Compare'
-        ];
         echo $this->setHeaderHtml();
-        $rqst                   = new \Symfony\Component\HttpFoundation\Request;
-        $superGlobals           = $rqst->createFromGlobals();
+        $rqst         = new \Symfony\Component\HttpFoundation\Request;
+        $superGlobals = $rqst->createFromGlobals();
         $this->prepareForOutputForm(['SuperGlobals' => $superGlobals]);
         if (!is_null($superGlobals->get('Label'))) {
             $this->processInfos(['sGlobals' => $superGlobals]);
@@ -80,6 +75,7 @@ class Compare
         $row          = array_merge($firstRow, $secondRow);
         ksort($row);
         $urlArguments = '?Label=' . $inArray['SuperGlobals']->get('Label');
+        $sString      = [];
         $sString[]    = '<table style="width:100%">'
                 . '<thead><tr>'
                 . '<th>Identifier</th>'
@@ -249,12 +245,12 @@ class Compare
     {
         return $this->setHeaderCommon([
                     'lang'       => 'en-US',
-                    'title'      => $this->applicationFlags['name'],
+                    'title'      => $this->configuredApplicationName(),
                     'css'        => 'css/main.css',
                     'javascript' => 'js/tabber.min.js',
                 ])
                 . $this->setJavascriptContent('document.write(\'<style type="text/css">.tabber{display:none;}</style>\');')
-                . '<h1>' . $this->applicationFlags['name'] . '</h1>'
+                . '<h1>' . $this->configuredApplicationName() . '</h1>'
                 . '<div class="tabber" id="tab">';
     }
 }
