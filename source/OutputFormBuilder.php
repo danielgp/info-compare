@@ -72,7 +72,22 @@ trait OutputFormBuilder
                 . '</fieldset>';
     }
 
-    protected function setFormOptions($inArray)
+    protected function setOutputForm($inArray)
+    {
+        $sReturn = $this->setFormOptions($inArray);
+        return '<div class="tabbertab" id="tabOptions" title="Options">'
+                . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
+                . '<form method="get" action="'
+                . $inArray['SuperGlobals']->server->get('PHP_SELF')
+                . '">'
+                . '<input type="submit" value="Apply" />'
+                . '<br/>' . implode('', $sReturn)
+                . '</form>'
+                . '<div style="float:none;clear:both;height:1px;">&nbsp;</div>'
+                . '</div><!--from tabOptions-->';
+    }
+
+    private function setFormOptions($inArray)
     {
         $sReturn   = [];
         $sReturn[] = $this->typeOfResults([
@@ -98,16 +113,7 @@ trait OutputFormBuilder
             'KnownLabels'  => $inArray['KnownLabels'],
             'SuperGlobals' => $inArray['SuperGlobals'],
         ]);
-        return '<div class="tabbertab" id="tabOptions" title="Options">'
-                . '<style type="text/css" media="all" scoped>label { width: auto; }</style>'
-                . '<form method="get" action="'
-                . $inArray['SuperGlobals']->server->get('PHP_SELF')
-                . '">'
-                . '<input type="submit" value="Apply" />'
-                . '<br/>' . implode('', $sReturn)
-                . '</form>'
-                . '<div style="float:none;clear:both;height:1px;">&nbsp;</div>'
-                . '</div><!--from tabOptions-->';
+        return $sReturn;
     }
 
     private function turnRequestedValueIntoCheckboxStatus($inArray)
@@ -125,8 +131,7 @@ trait OutputFormBuilder
 
     private function typeOfResults($inArray)
     {
-        return '<fieldset style="float:left;">'
-                . '<legend>Type of results displayed</legend>'
+        return '<fieldset style="float:left;"><legend>Type of results displayed</legend>'
                 . '<input type="radio" name="displayOnlyDifferent" id="displayOnlyDifferent" value="1" '
                 . $this->turnRequestedValueIntoCheckboxStatus([
                     'CheckedValue'  => '1',
@@ -134,18 +139,15 @@ trait OutputFormBuilder
                     'RequestedName' => 'displayOnlyDifferent',
                     'SuperGlobals'  => $inArray['SuperGlobals'],
                 ])
-                . '/>'
-                . '<label for="displayOnlyDifferent">Only the Different values</label>'
-                . '<br/>'
-                . '<input type="radio" name="displayOnlyDifferent" id="displayAll" value="0" '
+                . '/><label for="displayOnlyDifferent">Only the Different values</label>'
+                . '<br/><input type="radio" name="displayOnlyDifferent" id="displayAll" value="0" '
                 . $this->turnRequestedValueIntoCheckboxStatus([
                     'CheckedValue'  => '0',
                     'Defaults'      => $inArray['Defaults'],
                     'RequestedName' => 'displayOnlyDifferent',
                     'SuperGlobals'  => $inArray['SuperGlobals'],
                 ])
-                . '/>'
-                . '<label for="displayAll">All</label>'
+                . '/><label for="displayAll">All</label>'
                 . '</fieldset>';
     }
 }

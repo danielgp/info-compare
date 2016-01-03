@@ -192,7 +192,7 @@ class Compare
         $urlToGetLbl = $this->config['Servers'][$this->config['Defaults']['localConfig']]['url']
                 . '?Label=---' . urlencode(' List of known labels');
         $knownLabels = $this->getContentFromUrlThroughCurlAsArrayIfJson($urlToGetLbl)['response'];
-        echo $this->setFormOptions([
+        echo $this->setOutputForm([
             'Defaults'     => $this->config['Defaults'],
             'KnownLabels'  => $knownLabels,
             'Servers'      => $this->config['Servers'],
