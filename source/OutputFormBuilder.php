@@ -116,14 +116,6 @@ trait OutputFormBuilder
             $valToSet = (string) $inArray['Defaults'][$inArray['RequestedName']];
             $inArray['SuperGlobals']->request->set($inArray['RequestedName'], $valToSet);
         }
-//        var_dump($inArray['RequestedName']);
-//        echo '<hr/>';
-//        var_dump($inArray['SuperGlobals']->get($inArray['RequestedName']));
-//        echo '<hr/>';
-//        var_dump((string) $inArray['Defaults'][$inArray['RequestedName']]);
-//        echo '<hr/>';
-//        var_dump($inArray['CheckedValue']);
-//        die();
         $checkboxStatus = '';
         if ($inArray['SuperGlobals']->get($inArray['RequestedName']) === $inArray['CheckedValue']) {
             $checkboxStatus = 'checked ';
