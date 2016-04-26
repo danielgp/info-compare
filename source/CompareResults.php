@@ -29,7 +29,16 @@ namespace danielgp\info_compare;
 trait CompareResults
 {
 
-    private function decideToReturn($inValue)
+    private function buildKey($inArray)
+    {
+        $aReturn = [];
+        foreach ($inArray as $key => $val) {
+            $aReturn[] = str_repeat('_', $key) . $val;
+        }
+        return implode('', $aReturn);
+    }
+
+    private function emptyIfNotSet($inValue)
     {
         if (isset($inValue)) {
             $sReturn = $inValue;
@@ -39,36 +48,37 @@ trait CompareResults
         return $sReturn;
     }
 
-    protected function mergeArraysIntoFirstSecond($firstArray, $secondArray, $pSequence = ['first', 'second'])
+    protected function mergeArraysIntoFirstSecond($stAry, $ndAry, $pSq = ['first', 'second'])
     {
         $row = [];
-        foreach ($firstArray as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $key2 => $value2) {
-                    if (is_array($value2)) {
-                        foreach ($value2 as $key3 => $value3) {
-                            if (is_array($value3)) {
-                                foreach ($value3 as $key4 => $value4) {
-                                    $keyCrt                      = $key . '_' . $key2 . '__' . $key3 . '__' . $key4;
-                                    $row[$keyCrt][$pSequence[0]] = $value4;
-                                    $toEval                      = $secondArray[$key][$key2][$key3][$key4];
-                                    $row[$keyCrt][$pSequence[1]] = $this->decideToReturn($toEval);
+        foreach ($stAry as $key => $val) {
+            if (is_array($val)) {
+                foreach ($val as $ky2 => $vl2) {
+                    if (is_array($vl2)) {
+                        foreach ($vl2 as $ky3 => $vl3) {
+                            if (is_array($vl3)) {
+                                foreach ($vl3 as $ky4 => $vl4) {
+                                    $row[$this->buildKey([$key, $ky2, $ky3, $ky4])] = [
+                                        $pSq[0] => $vl4,
+                                        $pSq[1] => $this->emptyIfNotSet($ndAry[$key][$ky2][$ky3][$ky4]),
+                                    ];
                                 }
                             } else {
-                                $keyCrt                      = $key . '_' . $key2 . '__' . $key3;
-                                $row[$keyCrt][$pSequence[0]] = $value3;
-                                $row[$keyCrt][$pSequence[1]] = $this->decideToReturn($secondArray[$key][$key2][$key3]);
+                                $row[$this->buildKey([$key, $ky2, $ky3])] = [
+                                    $pSq[0] => $vl3,
+                                    $pSq[1] => $this->emptyIfNotSet($ndAry[$key][$ky2][$ky3]),
+                                ];
                             }
                         }
                     } else {
-                        $keyCrt                      = $key . '_' . $key2;
-                        $row[$keyCrt][$pSequence[0]] = $value2;
-                        $row[$keyCrt][$pSequence[1]] = $this->decideToReturn($secondArray[$key][$key2]);
+                        $row[$this->buildKey([$key, $ky2])] = [
+                            $pSq[0] => $vl2,
+                            $pSq[1] => $this->emptyIfNotSet($ndAry[$key][$ky2]),
+                        ];
                     }
                 }
             } else {
-                $row[$key][$pSequence[0]] = $value;
-                $row[$key][$pSequence[1]] = $this->decideToReturn($secondArray[$key]);
+                $row[$this->buildKey([$key])] = [$pSq[0] => $val, $pSq[1] => $this->emptyIfNotSet($ndAry[$key])];
             }
         }
         return $row;
