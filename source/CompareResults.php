@@ -78,7 +78,7 @@ trait CompareResults
                     }
                 }
             } else {
-                $row[$this->buildKey([$key])] = [$pSq[0] => $val, $pSq[1] => $this->emptyIfNotSet($ndAry[$key])];
+                $row[$key] = [$pSq[0] => $val, $pSq[1] => $this->emptyIfNotSet($ndAry[$key])];
             }
         }
         return $row;
