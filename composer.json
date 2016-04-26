@@ -20,7 +20,6 @@
     },
     "autoload": {
         "psr-4": {
-            "": "source/",
             "danielgp\\info_compare\\": "danielgp/info-compare/",
             "danielgp\\common_lib\\": "vendor/danielgp/common-lib/"
         },
