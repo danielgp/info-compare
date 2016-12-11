@@ -37,7 +37,7 @@ trait ConfigurationCompare
                 'Localhost Secure' => 'https://127.0.0.1/informator/',
                 'My website'       => 'http://www.pgd.ro/informator/source/info/',
                 'Marcman'          => 'http://www.marcman.ro/3rdparty/informator/',
-                'Lugoj2'           => 'http://160.221.78.69/3rdparty/danielgp/informator/source/info/',
+                'Lugoj2'           => 'http://160.221.78.69/3rdparty/danielgp/informator/',
             ],
             'default'     => [
                 'label'                   => 'Php General',
